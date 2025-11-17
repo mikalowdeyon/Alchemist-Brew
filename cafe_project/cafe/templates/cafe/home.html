@@ -1,0 +1,909 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alchemist's Brew</title>
+    
+    <!-- Link Google Fonts: Purple Purse (for logo/contact) and Playfair Display (for hero heading) -->
+    <link rel="Icon" href="img/alchemist-icon.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Purple+Purse&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quando&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+    <!-- NOTE: You must replace 'path/to/...' with the actual file paths for your logo and all product images. -->
+
+    <style>
+        /* CSS Variables for Dynamic Colors (Controlled by JavaScript) */
+        :root {
+            --primary-pink: #fce8f0; /* Default: Strawberry Background */
+            --secondary-pink: #e76f92; /* Default: Strawberry Accent (Button fill/border) */
+            --text-dark: #3f2f45; /* Dark purple/brown for text */
+            --font-serif: 'Playfair Display', serif;
+            --font-cursive: 'Purple Purse', cursive;
+            
+            /* Color for the new Menu Preview section background */
+            --menu-section-bg: #F4DCE3; 
+        }
+
+        /* --- GLOBAL & BODY STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body {
+            font-family: 'Quando', sans-serif;
+            min-height: 100vh;
+            /* FIX: Prevent horizontal scroll by hiding overflow */
+            overflow-x: hidden; 
+        }
+        
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: var(--primary-pink); 
+            color: var(--text-dark);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-family: var(--font-cursive);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 24px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            background-color: var(transparent);
+            border-radius: 50%;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-dark);
+            padding: 5px 10px;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .nav-item.current {
+            text-decoration: underline;
+            text-decoration-color: var(--secondary-pink);
+            text-underline-offset: 8px;
+            font-weight: bold;
+        }
+        
+        .contact-button {
+            border: 1px solid var(--secondary-pink);
+            border-radius: 20px;
+            padding: 5px 15px;
+            background-color: transparent;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-icon {
+            font-size: 24px;
+            text-decoration: none;
+        }
+
+        .register-btn {
+            background-color: transparent;
+            border: 1px solid var(--secondary-pink);
+            color: var(--text-dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-cursive);
+            font-size: 16px;
+        }
+        
+        .dropdown-arrow-link {
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+        
+        .dropdown-arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-dark);
+            transform: translateY(2px);
+        }
+
+        /* --- HERO SECTION LAYOUT --- */
+        .hero-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px 100px;
+            gap: 40px;
+            min-height: calc(100vh - 70px); 
+        }
+        
+        .hero-content {
+            flex: 1;
+            max-width: 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 7vw; 
+            line-height: 1;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+        
+        @media (min-width: 1400px) {
+            .hero-title {
+                font-size: 100px; 
+            }
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: var(--text-dark);
+            max-width: 400px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .primary-btn {
+            background-color: var(--secondary-pink);
+            color: white;
+            border: 1px solid var(--secondary-pink);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .secondary-btn {
+            background-color: transparent;
+            color: var(--text-dark);
+            border: 1px solid var(--secondary-pink);
+        }
+        
+        .primary-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .secondary-btn:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* --- DRINK PREVIEWS --- */
+        .drink-previews {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .preview-link {
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 5px;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-link.active {
+            opacity: 1;
+            border-color: var(--secondary-pink);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-img {
+            width: 40px;
+            height: 40px;
+            display: block;
+        }
+        
+        /* --- HERO IMAGE CONTAINER --- */
+        .hero-image-container {
+            flex: 1;
+            max-width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 50px;
+            background: radial-gradient(circle at 70% 50%, rgba(255, 182, 193, 0.6) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-drink-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            z-index: 2; 
+        }
+        
+        /* --- ALTERNATIVE CONTENT STYLES --- */
+        #alt-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            text-align: center;
+            padding: 100px 50px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        #alt-title {
+            font-family: var(--font-serif);
+            font-size: 72px;
+            color: var(--text-dark);
+            line-height: 1.1;
+        }
+        
+        #alt-text {
+            font-size: 20px; 
+            margin-top: 20px; 
+            max-width: 600px;
+            color: var(--text-dark);
+        }
+        
+        /* --- MENU PREVIEW SECTION (The Carousel) --- */
+        .menu-preview-section {
+            padding: 100px 0;
+            width: 100%;
+            text-align: center;
+            background-color: var(--menu-section-bg); /* Use the specific pink background */
+            position: relative;
+        }
+
+        .menu-preview-heading {
+            font-family: var(--font-serif);
+            font-size: 48px;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .menu-preview-subtitle {
+            font-size: 20px;
+            color: var(--text-dark);
+            margin-bottom: 50px;
+            opacity: 0.8;
+        }
+        
+        /* Carousel Container (The window) */
+        .drink-carousel-window {
+            overflow: hidden; /* This hides the drinks that are off-screen */
+            margin: 0 5%; /* Keep some horizontal padding */
+            position: relative;
+        }
+        
+        /* Carousel Track (The moving part) */
+        .carousel-track {
+            display: flex;
+            gap: 20px;
+            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smooth scrolling */
+            padding: 0 50px; /* Space for the cards to breathe */
+            width: fit-content; /* Ensure the track is wide enough for all cards */
+        }
+        
+        /* Drink Cards */
+        .drink-card {
+            min-width: 300px; /* Fixed width for card (matches image design) */
+            height: 400px;
+            background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent white card background */
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            color: var(--text-dark);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-image-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card-image {
+            max-height: 100%;
+            max-width: 100%;
+            display: block;
+        }
+
+        .card-title {
+            font-family: var(--font-serif);
+            font-size: 24px;
+            font-weight: 700;
+            z-index: 5;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        /* Carousel Navigation Buttons (Arrows) */
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 100px;
+            background-color: rgba(255, 255, 255, 0.3); /* Translucent background */
+            border: none;
+            cursor: pointer;
+            z-index: 20;
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--secondary-pink);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .carousel-arrow:hover {
+            background-color: rgba(255, 255, 255, 0.6);
+            color: var(--text-dark);
+        }
+
+        #prev-arrow {
+            left: 0;
+            border-radius: 0 20px 20px 0;
+        }
+
+        #next-arrow {
+            right: 0;
+            border-radius: 20px 0 0 20px;
+        }
+        
+        /* Discover More Button */
+        .discover-btn {
+            margin-top: 50px;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: var(--secondary-pink);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .discover-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+
+        /* --- MOBILE/RESPONSIVE ADJUSTMENTS --- */
+        @media (max-width: 900px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .nav-links, .nav-actions {
+                display: none;
+            }
+
+            .hero-section {
+                flex-direction: column; 
+                padding: 30px 20px;
+                text-align: center;
+                gap: 30px;
+                min-height: auto; 
+            }
+            
+            .hero-content {
+                max-width: 100%;
+                order: 2; 
+                align-items: center;
+            }
+            
+            .hero-title {
+                font-size: 15vw;
+            }
+
+            .hero-image-container {
+                max-width: 80%;
+                order: 1; 
+                padding: 30px;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .hero-description {
+                max-width: 10%;
+            }
+
+            .drink-previews {
+                justify-content: center;
+            }
+            
+            /* Menu Preview adjustments */
+            .menu-preview-heading {
+                font-size: 36px;
+            }
+            
+            .drink-carousel-window {
+                margin: 0;
+                padding: 0 10px;
+            }
+            
+            .carousel-track {
+                /* Show one card centered for mobile, allowing scroll */
+                padding: 0; 
+                justify-content: flex-start;
+                overflow-x: scroll; /* Allow users to swipe */
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+            }
+            
+            .drink-card {
+                min-width: 80%; /* Takes up most of the screen width */
+                margin: 0 10px;
+                scroll-snap-align: center;
+            }
+            
+            .carousel-arrow {
+                display: none; /* Hide buttons on mobile in favor of swipe */
+            }
+        }
+
+    </style>
+</head>
+<body id="page-body" data-active-page="home-strawberry">
+    <main>
+        <!-- Home Page Content: Changes with drink selection -->
+        <section class="hero-section" id="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title" id="hero-title">The Rose Elixir</h1>
+                <p class="hero-description" id="hero-description">
+                    A sweet, ruby-hued concoction of strawberries and ice, whipped into a delightful, 
+                    frosty blend. It's a charm to lift your spirits and enchant your senses.
+                </p>
+                <div class="hero-buttons">
+                    <a href="{% url 'menu' %}">
+                    <button class="btn primary-btn" id="primary-btn">Order Now</button>
+                    </a>
+                    <a href="{% url 'menu' %}">
+                    <button class="btn secondary-btn" id="view-menu-btn">View Menu</button>
+                    </a>
+                </div>
+                
+
+            </div>
+
+            <div class="hero-image-container" id="hero-image-container">
+                <!-- Large Hero Drink Image Placeholder -->
+                <img src="{% static 'menu-img/ichigo.jpg' %}" alt="Large Strawberry Elixir" class="rose-elixir" id="rose-elixir-img-large">
+            </div>
+        
+            <!-- Alternative Page Content: Used for Menu, Study Room, etc. -->
+            <div id="alt-content" style="display: none; width: 100%; text-align: center; padding-top: 100px; padding-bottom: 100px;">
+                <h1 class="hero-title" style="font-size: 72px;" id="alt-title"></h1>
+                <p style="font-size: 20px; margin-top: 20px; max-width: 600px; margin-left: auto; margin-right: auto;" id="alt-text"></p>
+            </div>
+        </section>
+
+        <!-- Menu Preview Section (The Carousel) -->
+        <section class="menu-preview-section" id="menu-preview-section">
+            <h2 class="menu-preview-heading">Where Every Sip is Magic</h2>
+            <p class="menu-preview-subtitle">
+                Step into our world and experience brews crafted with mystical precision. 
+                Whatever your taste or craving, find your personal potion here.
+            </p>
+            
+            <div class="drink-carousel-window" id="drink-carousel-window">
+                <!-- Navigation Arrows -->
+                <button class="carousel-arrow" id="prev-arrow"> &lt; </button>
+                <button class="carousel-arrow" id="next-arrow"> &gt; </button>
+                
+                <!-- Carousel Track - Holds all the cards -->
+                <div class="carousel-track" id="carousel-track">
+                    
+                    <!-- Original Card 1: The Dragon's Breath (Hot Cocoa) -->
+                    <a href="{% url 'menu' %}" class="drink-card" data-drink-id="1">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (7).png' %}" alt="The Dragon's Breath" class="card-image">
+                        </div>
+                        <span class="card-title">The Dragon's Breath</span>
+                    </a>
+
+                    <!-- Original Card 2: The Black Onyx (Iced Coffee) -->
+                    <a href="{% url 'menu' %}" class="drink-card" data-drink-id="2">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (5).png' %}" alt="The Black Onyx" class="card-image">
+                        </div>
+                        <span class="card-title">The Black Onyx</span>
+                    </a>
+
+                    <!-- Original Card 3: The Sweet Sorcery (Caramel Latte) -->
+                    <a href="{% url 'menu' %}" class="drink-card" data-drink-id="3">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (6).png' %}" alt="The Sweet Sorcery" class="card-image">
+                        </div>
+                        <span class="card-title">The Sweet Sorcery</span>
+                    </a>
+
+                    <!-- Original Card 4: The Voidstone Potion -->
+                    <a href="{% url 'menu' %}" class="drink-card" data-drink-id="4">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (8).png' %}" alt="The Voidstone Potion" class="card-image">
+                        </div>
+                        <span class="card-title">The Voidstone Potion</span>
+                    </a>
+
+                    <!-- Original Card 5: The Enchanted Swirl -->
+                    <a href="{% url 'menu' %}" class="drink-card" data-drink-id="5">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (9).png' %}" alt="The Enchanted Swirl" class="card-image">
+                        </div>
+                        <span class="card-title">The Enchanted Swirl</span>
+                    </a>
+
+                    <!-- CLONES FOR INFINITE LOOP -->
+                    <!-- Clone of Card 1: The Midas Touch -->
+                    <a href="{% url 'menu' %}"class="drink-card clone" data-drink-id="1">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (7).png' %}" alt="The Midas Touch" class="card-image">
+                        </div>
+                        <span class="card-title">The Midas Touch</span>
+                    </a>
+
+                    <!-- Clone of Card 2: The Black Onyx -->
+                    <a href="{% url 'menu' %}" class="drink-card clone" data-drink-id="2">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (5).png' %}" alt="The Black Onyx" class="card-image">
+                        </div>
+                        <span class="card-title">The Black Onyx</span>
+                    </a>
+
+                    <!-- Clone of Card 3: The Sweet Sorcery -->
+                    <a href="{% url 'menu' %}" class="drink-card clone" data-drink-id="3">
+                        <div class="card-image-wrapper">
+                            <img src="{% static 'signin-img/Untitled design (6).png' %}" alt="The Sweet Sorcery" class="card-image">
+                        </div>
+                        <span class="card-title">The Sweet Sorcery</span>
+                    </a>
+                </div>
+                
+            </div>
+            <a href="{% url 'menu' %}"class="discover-btn nav-page-link" data-page="menu">Discover More</a>
+        </section>
+    </main>
+
+    <script>
+        // --- DATA STATES ---
+        const drinkData = {
+            'home-strawberry': {
+                page: 'home',
+                title: "The Rose Elixir",
+                description: "A sweet, ruby-hued concoction of strawberries and ice, whipped into a delightful, frosty blend. It's a charm to lift your spirits and enchant your senses.",
+                primaryColor: "#fce8f0", 
+                accentColor: "#e76f92",  
+                imagePath: "path/to/large-strawberry-drink.png",
+                orderBtnText: "Order Now",
+                glow: "radial-gradient(circle at 70% 50%, rgba(255, 182, 193, 0.6) 0%, transparent 70%)"
+            },
+            'home-matcha': {
+                page: 'home',
+                title: "The Jade Essence",
+                description: "A vibrant, emerald-green potion crafted from the purest, finely ground tea leaves. This earthy and revitalizing brew awakens the mind and nourishes the soul.",
+                primaryColor: "#EBF5E0", 
+                accentColor: "#6A8C3A",  
+                imagePath: "path/to/large-matcha-drink.png",
+                orderBtnText: "Order Now",
+                glow: "radial-gradient(circle at 70% 50%, rgba(144, 238, 144, 0.6) 0%, transparent 70%)"
+            },
+            'home-coffee': {
+                page: 'home',
+                title: "The Midas Touch",
+                description: "A truly magical concoction. This coffee is infused with a caramel so rich and luxurious, it feels as though everything it touches has been turned to gold.",
+                primaryColor: "#F3E8DC", 
+                accentColor: "#964B00",  
+                imagePath: "path/to/large-coffee-drink.png",
+                orderBtnText: "Order Now",
+                glow: "radial-gradient(circle at 70% 50%, rgba(210, 180, 140, 0.6) 0%, transparent 70%)"
+            },
+            
+            'menu': {
+                page: 'alt',
+                title: "Our Full Grimoire of Brews",
+                text: "Explore all our enchanting elixirs, potions, and spell-binding coffee blends. Ready to order?",
+                primaryColor: "#E0F7FA", 
+                accentColor: "#00BCD4",  
+            },
+            'study-room': {
+                page: 'alt',
+                title: "The Alchemist's Study Room",
+                text: "A quiet haven for deep contemplation and focused work. Find your nearest location and book a seat.",
+                primaryColor: "#FBEFE8", 
+                accentColor: "#FF9800",  
+            },
+            'contact-us': {
+                page: 'alt',  
+                
+                title: "Contact the Apothecary",
+                text: "Have a query about your brew or need support? Send us a message!",
+                primaryColor: "#F3E5F5", 
+                accentColor: "#9C27B0",  
+            },
+            'cart': {
+                page: 'alt',
+                title: "Your Inventory",
+                text: "Review the items you've gathered for your order.",
+                primaryColor: "#E8F5E9", 
+                accentColor: "#4CAF50",  
+            },
+            'profile': {
+                page: 'alt',
+                title: "The Apprentice Profile",
+                text: "Manage your account, view past orders, and update your magical settings.",
+                primaryColor: "#F8F8F8", 
+                accentColor: "#757575",  
+            }
+        };
+
+// --- DOM ELEMENTS ---
+const pageBody = document.getElementById('page-body');
+const heroSection = document.getElementById('hero-section'); 
+const heroContent = document.querySelector('.hero-content');
+const heroImageContainer = document.getElementById('hero-image-container');
+const altContent = document.getElementById('alt-content');
+const previewLinks = document.querySelectorAll('.preview-link');
+const navPageLinks = document.querySelectorAll('.nav-page-link'); // Still needed for highlighting
+const navItems = document.querySelectorAll('.nav-item');
+const styleRoot = document.documentElement.style;
+
+// Home page elements
+const heroTitle = document.getElementById('hero-title');
+const heroDescription = document.getElementById('hero-description');
+const primaryBtn = document.getElementById('primary-btn');
+const heroDrinkImage = document.getElementById('hero-drink-image');
+const viewMenuBtn = document.getElementById('view-menu-btn');
+
+// Carousel elements
+const menuPreviewSection = document.getElementById('menu-preview-section');
+const carouselTrack = document.getElementById('carousel-track');
+const prevArrow = document.getElementById('prev-arrow');
+const nextArrow = document.getElementById('next-arrow');
+// Select only the original (non-cloned) drink cards for counting
+const originalDrinkCards = document.querySelectorAll('.drink-card:not(.clone)'); 
+
+let currentCarouselIndex = 0; // Tracks the index of the first visible card
+const CARDS_PER_VIEW = 3; // The number of visible cards in the desktop view
+const NUM_ORIGINAL_CARDS = originalDrinkCards.length; // 5
+
+// --- CAROUSEL LOGIC (KEPT AS IS) ---
+
+/**
+ * Calculates the width of a single card plus its margin/gap.
+ * @returns {number} The total width in pixels for one card increment.
+ */
+function getCardWidth() {
+    if (originalDrinkCards.length === 0) return 0;
+    const card = originalDrinkCards[0];
+    const computedStyle = window.getComputedStyle(card);
+    const width = card.offsetWidth;
+    const gap = parseFloat(window.getComputedStyle(carouselTrack).gap) || 20;
+    
+    return width + gap; 
+}
+
+/**
+ * Scrolls the carousel track by a certain number of card positions, implementing a loop.
+ * @param {number} direction - 1 for next, -1 for previous.
+ */
+function scrollDrinks(direction) {
+    const cardWidth = getCardWidth();
+    
+    // 1. Calculate the target index
+    let newIndex = currentCarouselIndex + direction;
+    
+    // 2. Check for the reset condition (End of Loop)
+    // If we move to the right (direction=1) and we land on the first clone (index 5)
+    if (newIndex >= NUM_ORIGINAL_CARDS) {
+        // First, scroll to the clone (to make it look seamless)
+        currentCarouselIndex = newIndex;
+        let translateDistance = -currentCarouselIndex * cardWidth;
+        carouselTrack.style.transform = `translateX(${translateDistance}px)`;
+        
+        // Then, instantly jump back to the start (index 0) after the animation finishes
+        setTimeout(() => {
+            carouselTrack.style.transition = 'none'; // Disable transition for instant jump
+            currentCarouselIndex = 0;
+            translateDistance = 0;
+            carouselTrack.style.transform = `translateX(${translateDistance}px)`;
+            
+            // Re-enable transition for next scroll
+            setTimeout(() => {
+                carouselTrack.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            }, 50); // A very small delay to ensure transition property is removed before next scroll
+        }, 500); // Must match the CSS transition duration (0.5s)
+        return;
+    }
+    
+    // 3. Check for the reset condition (Start of Loop)
+    // If we move to the left (direction=-1) and are moving from the first card
+    if (newIndex < 0) {
+        // First, jump instantly to the 'cloned' end position (index = 5)
+        carouselTrack.style.transition = 'none'; // Disable transition for instant jump
+        currentCarouselIndex = NUM_ORIGINAL_CARDS; 
+        let translateDistance = -currentCarouselIndex * cardWidth;
+        carouselTrack.style.transform = `translateX(${translateDistance}px)`;
+        
+        // Then, enable transition and scroll to the second-to-last card (index 4)
+        setTimeout(() => {
+            carouselTrack.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            currentCarouselIndex = NUM_ORIGINAL_CARDS - 1; 
+            translateDistance = -currentCarouselIndex * cardWidth;
+            carouselTrack.style.transform = `translateX(${translateDistance}px)`;
+        }, 50); // Small delay before applying the smooth scroll
+        return;
+    }
+    
+    // 4. Standard Scroll
+    carouselTrack.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+    currentCarouselIndex = newIndex;
+    const translateDistance = -currentCarouselIndex * cardWidth;
+    carouselTrack.style.transform = `translateX(${translateDistance}px)`;
+}
+
+// --- UI UPDATE FUNCTIONS ---
+
+/**
+ * Updates the entire page state (content, colors, layout) based on the pageKey.
+ * NOTE: This function is now ONLY used for the home page drink previews ('home-...') 
+ * and is NO LONGER used for the main navigation (menu, contact, etc.).
+ * @param {string} pageKey - The key corresponding to the desired page state (e.g., 'home-strawberry').
+ */
+function updatePageState(pageKey) {
+    const data = drinkData[pageKey];
+    if (!data) return;
+
+    // 1. Update Colors (CSS Variables and BODY Background) - This is mostly a home page effect now
+    styleRoot.setProperty('--primary-pink', data.primaryColor);
+    styleRoot.setProperty('--secondary-pink', data.accentColor);
+    pageBody.style.backgroundColor = data.primaryColor;
+    
+    // 2. Manage Active Navigation Link (sets 'current' class on nav-item)
+    // We only want to highlight 'Home' when on a 'home-' key
+    navItems.forEach(item => item.classList.remove('current'));
+    
+    const navItemKey = pageKey.startsWith('home') ? 'home-strawberry' : pageKey;
+    const navItemToHighlight = document.querySelector(`.nav-item[data-page="${navItemKey}"]`);
+    if (navItemToHighlight) {
+        navItemToHighlight.classList.add('current');
+    }
+
+    // 3. Switch between Home (Hero) content and Alternative content
+    // Since we're navigating away for other pages, this logic only applies to home views
+    if (data.page === 'home') {
+        // Show Home Content
+        heroSection.style.display = 'flex'; 
+        heroContent.style.display = 'flex';
+        heroImageContainer.style.display = 'flex';
+        altContent.style.display = 'none';
+        menuPreviewSection.style.display = 'block'; 
+
+        // Home view updates (Drink Preview logic)
+        heroTitle.textContent = data.title;
+        heroDescription.textContent = data.description;
+        heroDrinkImage.src = data.imagePath;
+        primaryBtn.textContent = data.orderBtnText;
+        heroImageContainer.style.background = data.glow;
+        pageBody.dataset.activePage = pageKey;
+        
+        // Update active preview highlight
+        const drinkName = pageKey.replace('home-', '');
+        previewLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.dataset.drink === drinkName) {
+                link.classList.add('active');
+            }
+        });
+        
+    } 
+    // The ELSE block for Alt Content is removed because external pages will handle their own content.
+}
+
+
+// 5. Carousel Arrow Clicks (STAYS AS IS)
+if (prevArrow && nextArrow) {
+    prevArrow.addEventListener('click', () => scrollDrinks(-1));
+    nextArrow.addEventListener('click', () => scrollDrinks(1));
+}
+
+
+// 6. Handle resizing to ensure the carousel position is correct (STAYS AS IS)
+window.addEventListener('resize', () => {
+     // Reset the position when resizing to avoid awkward gaps, and always keep index 0
+     carouselTrack.style.transition = 'none'; // Temporarily disable transition for instant reset
+     currentCarouselIndex = 0; // Reset to the start of the original cards
+    const translateDistance = 0;
+    carouselTrack.style.transform = `translateX(${translateDistance}px)`;
+    
+     // Re-enable transition after a small delay
+    setTimeout(() => {
+        carouselTrack.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+    }, 10);
+});
+
+// Initialize the page view on load
+window.onload = () => {
+    // This is vital for the home page to set the initial look (colors/content)
+    if (pageBody.dataset.activePage === 'home-strawberry' || !pageBody.dataset.activePage) {
+        updatePageState('home-strawberry');
+    }
+};
+    </script>
+</body>
+</html>
+{% endblock %}

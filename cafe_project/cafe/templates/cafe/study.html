@@ -1,0 +1,777 @@
+{% extends "base.html" %}
+{% block content %}
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Knowledge Sanctum - Reservation</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Tailwind Configuration -->
+    <link rel="Icon" href="img/alchemist-icon.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Purple+Purse&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quando&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+    <!-- Supabase SDK Imports -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // --- GLOBAL SETUP ---
+        const SUPABASE_URL = 'https://xaiblnxwezqrhusbvpwl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_QSuYzyM9Y7ak4Q1li0pLOg_cttfXwcn';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let userId = null;
+
+        // Initialize and Authenticate
+        async function initializeSupabase() {
+            try {
+                // Try to get existing session
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (session?.user) {
+                    userId = session.user.id;
+                } else {
+                    // Sign in anonymously
+                    const { data, error } = await supabase.auth.signInAnonymously();
+                    if (error) {
+                        console.error("Authentication failed:", error);
+                        userId = crypto.randomUUID(); // Fallback to local UUID
+                    } else {
+                        userId = data.user.id;
+                    }
+                }
+
+                console.log("User authenticated with ID:", userId);
+            } catch (error) {
+                console.error("Supabase initialization failed:", error);
+                userId = crypto.randomUUID(); // Fallback to local UUID
+            }
+        }
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'celestial-blue': '#40311A',
+                        'deep-teal': '#40311A',
+                        'caramel-gold': '#5B3909',
+                        'light-bg': '#EFCFA2', /* Parchment color */
+                        'dark-bg': '#EFCFA2',
+                        'parchment-border': '#E2C08D'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Georgia', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* CSS Variables for Dynamic Colors (Adjusted to your Tailwind palette) */
+        :root {
+            --primary-pink: #fdf8e8; /* light-bg (Parchment color) */
+            --secondary-pink: #B77F70; /* deep-teal (Accent) */
+            --text-dark: #79554B; /* dark-bg for text */
+            --font-serif: 'Playfair Display', serif;
+            --font-cursive: 'Purple Purse', cursive;
+            
+            /* Color for the new Menu Preview section background */
+            --menu-section-bg: #F4DCE3;
+        }
+
+        /* --- GLOBAL & BODY STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body {
+            background-color: #f5eedc; /* Existing body color */
+            font-family: 'Quando', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: var(--primary-pink);
+            color: var(--text-dark);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-family: var(--font-cursive);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 24px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            background-color: transparent;
+            border-radius: 50%;
+            /* Styling the SVG icon color to match the theme */
+            color: var(--secondary-pink); 
+            stroke: var(--secondary-pink);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-dark);
+            padding: 5px 10px;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .nav-item.current {
+            text-decoration: underline;
+            text-decoration-color: var(--secondary-pink);
+            text-underline-offset: 8px;
+            font-weight: bold;
+        }
+        
+        .contact-button {
+            border: 1px solid var(--secondary-pink);
+            border-radius: 20px;
+            padding: 5px 15px;
+            background-color: transparent;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-icon {
+            font-size: 24px;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .register-btn {
+            background-color: transparent;
+            border: 1px solid var(--secondary-pink);
+            color: var(--text-dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-cursive);
+            transition: all 0.3s ease;
+        }
+        .register-btn:hover {
+            background-color: var(--secondary-pink);
+            color: var(--primary-pink);
+        }
+
+        .dropdown-arrow-link {
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+        
+        .dropdown-arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-dark);
+            transform: translateY(2px);
+        }
+        
+
+        /* --- PAGE CONTENT STYLES (from original code) --- */
+
+        /* Styling for the main content card, giving it a framed look */
+        .sanctum-card {
+            background-color: var(--light-bg);
+            border: 3px solid #cfa978;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom styling for the main "Knowledge Sanctum" title to mimic the graphic */
+        .sanctum-title {
+            font-family: var(--font-cursive);
+            font-style: normal;
+            font-weight: 400;
+            font-size: 70px;
+            line-height: 100px;
+            text-align: center;
+            color: #E79F35;
+            text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.7);
+
+        }
+
+        /* Style for the interactive slots */
+        .time-slot, .date-slot {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #cfa978;
+        }
+        .time-slot.selected, .date-slot.selected, .group-size-slot.selected {
+            background-color: #cf9345ba; /* Deep Teal */
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px #ffb703; /* Gold outline */
+        }
+        .time-slot:hover:not(.selected):not(.disabled), .date-slot:hover:not(.selected) {
+            background-color: #f0ead8;
+        }
+        .time-slot.disabled {
+            background-color: #e0e0e0 !important;
+            color: #a0a0a0 !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+        .group-size-slot {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .group-size-slot:hover:not(.selected) {
+            background-color: #f0ead8;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="container mx-auto px-4 py-8">
+        <!-- Main Reservation Card -->
+        <div class="sanctum-card rounded-xl p-6 md:p-10">
+            <div class="text-center mb-10">
+                <h2 class="sanctum-title">The Knowledge Sanctum</h2>
+            </div>
+
+            <!-- Two-Column Grid for Reservation -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- LEFT COLUMN: Selection and Form (2/3 width on desktop) -->
+                <div class="md:col-span-2 space-y-8">
+                    
+                    <!-- 1. Select Date -->
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-semibold text-lg text-deep-teal border-b border-caramel-gold">Select a Date</span>
+                            <span class="font-semibold text-lg text-caramel-gold">Current: <span id="current-month">November 2025</span></span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="changeMonth(-1)" class="p-2 text-deep-teal hover:text-caramel-gold transition-colors" aria-label="Previous Month">
+                                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                            </button>
+                            <div id="date-slots-container" class="grid grid-cols-5 sm:grid-cols-7 gap-2 flex-grow">
+                                <!-- Date slots injected by JS -->
+                            </div>
+                            <button onclick="changeMonth(1)" class="p-2 text-deep-teal hover:text-caramel-gold transition-colors" aria-label="Next Month">
+                                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Select Time (Now showing Check-in and Check-out 1-hour slots) -->
+                    <div class="pt-4 space-y-6">
+                        <h3 class="text-xl font-bold text-deep-teal border-b border-caramel-gold pb-2">Select Time Slots (1 Hour per Slot)</h3>
+                        
+                        <!-- Check-in Time Selection -->
+                        <div>
+                            <p class="text-lg font-semibold text-caramel-gold mb-3 flex items-center">
+                                <i data-lucide="log-in" class="w-5 h-5 mr-2 text-caramel-gold"></i>
+                                Check-in Time
+                            </p>
+                            <div id="start-time-slots-container" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                                <!-- Start Time slots injected by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Check-out Time Selection -->
+                        <div>
+                            <p class="text-lg font-semibold text-caramel-gold mb-3 flex items-center">
+                                <i data-lucide="log-out" class="w-5 h-5 mr-2 text-caramel-gold"></i>
+                                Check-out Time <span id="checkout-guide" class="text-sm ml-2 text-deep-teal font-normal">(Must be after Check-in)</span>
+                            </p>
+                            <div id="end-time-slots-container" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                                <!-- End Time slots injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Enter Your Details (Form) -->
+                    <div class="pt-4">
+                        <h3 class="text-xl font-bold text-deep-teal mb-4 border-b border-caramel-gold pb-2">Enter your details:</h3>
+                        <form id="reservation-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <label class="block">
+                                    <span class="text-sm font-medium text-caramel-gold">First Name*</span>
+                                    <input type="text" id="first-name" class="mt-1 block w-full rounded-lg border-parchment-border border-2 p-2 focus:border-deep-teal focus:ring-deep-teal" required placeholder="First Name">
+                                </label>
+                                <label class="block">
+                                    <span class="text-sm font-medium text-caramel-gold">Last Name*</span>
+                                    <input type="text" id="last-name" class="mt-1 block w-full rounded-lg border-parchment-border border-2 p-2 focus:border-deep-teal focus:ring-deep-teal" required placeholder="Last Name">
+                                </label>
+                            </div>
+                            <label class="block">
+                                <span class="text-sm font-medium text-caramel-gold">Mobile Number:</span>
+                                <input type="tel" id="mobile-number" class="mt-1 block w-full rounded-lg border-parchment-border border-2 p-2 focus:border-deep-teal focus:ring-deep-teal" placeholder="e.g. 09999999999">
+                            </label>
+                            <label class="block">
+                                <h3 class="text-xl font-bold text-deep-teal mb-2 mt-4">Enter your Email Address:</h3>
+                                <input type="email" id="email-address" class="mt-1 block w-full rounded-lg border-parchment-border border-2 p-2 focus:border-deep-teal focus:ring-deep-teal" placeholder="Email Address @ .com" required>
+                            </label>
+
+                            <!-- Book for Group Section -->
+                            <div class="pt-6">
+                                <h3 class="text-xl font-bold text-deep-teal mb-4 border-b border-caramel-gold pb-2">Book for Group</h3>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <!-- Group Size Slots (2-5 people) -->
+                                    <div class="group-size-slot text-center p-3 rounded-lg border-2 border-parchment-border bg-white text-caramel-gold transition-all duration-200" onclick="selectGroupSize(2)">2 Pax</div>
+                                    <div class="group-size-slot text-center p-3 rounded-lg border-2 border-parchment-border bg-white text-caramel-gold transition-all duration-200" onclick="selectGroupSize(3)">3 Pax</div>
+                                    <div class="group-size-slot text-center p-3 rounded-lg border-2 border-parchment-border bg-white text-caramel-gold transition-all duration-200" onclick="selectGroupSize(4)">4 Pax</div>
+                                    <div class="group-size-slot text-center p-3 rounded-lg border-2 border-parchment-border bg-white text-caramel-gold transition-all duration-200" onclick="selectGroupSize(5)">5 Pax</div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Summary and Contact (1/3 width on desktop) -->
+                <div class="md:col-span-1 space-y-8 p-6 bg-parchment-border/20 rounded-xl">
+                    
+                    <!-- Reservation Summary -->
+                    <div class="space-y-4">
+                        <h3 class="text-xl font-bold text-deep-teal border-b border-caramel-gold pb-2">Reservation Summary</h3>
+                        <div id="summary-details" class="text-sm space-y-1">
+                            <p><span class="font-semibold text-caramel-gold">DATE:</span> <span id="summary-date"></span></p>
+                            <p><span class="font-semibold text-caramel-gold">CHECK-IN:</span> <span id="summary-check-in"></span></p>
+                            <p><span class="font-semibold text-caramel-gold">CHECK-OUT:</span> <span id="summary-check-out"></span></p>
+                            <p><span class="font-semibold text-caramel-gold">TOTAL LENGTH OF STAY:</span> <span id="summary-length"></span></p>
+                            <p><span class="font-semibold text-caramel-gold">YOU SELECTED:</span> <span id="summary-group-size"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Information Summary (Preview of Form Data) -->
+                    <div class="space-y-4">
+                        <h3 class="text-xl font-bold text-deep-teal border-b border-caramel-gold pb-2">Information Summary</h3>
+                        <div id="info-summary-details" class="text-sm space-y-1">
+                            <p>Reserved for: <span id="summary-name"></span></p>
+                            <p>Email Address: <span id="summary-email"></span></p>
+                            <p>Contact Number: <span id="summary-mobile">+63 </span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="space-y-3">
+                        <button onclick="reserveAppointment()" class="w-full py-3 rounded-lg bg-caramel-gold text-dark-bg font-bold text-lg hover:bg-yellow-600 transition-colors shadow-lg">
+                            Reserve this Appointment
+                        </button>
+                        <button onclick="window.location.href='/menu/'" class="w-full py-3 rounded-lg border-2 border-caramel-gold text-caramel-gold font-semibold hover:bg-caramel-gold/10 transition-colors">
+                            Back to Menu Page
+                        </button>
+                    </div>
+
+                    <!-- Contact/Support -->
+                    <div class="flex items-center space-x-4 pt-4 border-t border-parchment-border">
+                        <i data-lucide="headphones" class="w-8 h-8 text-deep-teal flex-shrink-0"></i>
+                        <div class="text-sm">
+                            <p class="font-semibold text-deep-teal mb-1">We can help you</p>
+                            <p>Call us 09123456789 or Chat with us on our customer support team</p>
+                            <button onclick="console.log('Starting chat with support...')" class="mt-2 py-2 px-4 rounded-full bg-deep-teal text-light-bg text-xs font-semibold hover:bg-dark-bg transition-colors">
+                                Chat with us
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript for Logic -->
+    <script>
+        // State variables
+        let selectedDate = new Date(2025, 10, 15); // Default to Nov 15, 2025
+        let selectedGroupSize = 5;
+        
+        // Time state variables for 1-hour slots
+        let selectedStartTime = '12:00 pm'; // Default check-in time
+        let selectedEndTime = '3:00 pm';   // Default check-out time
+
+        // All possible 1-hour slots (Check-out slots are the same, just offset by the Check-in time)
+        const TIME_SLOTS = [
+            '9:00 am', '10:00 am', '11:00 am', '12:00 pm', 
+            '1:00 pm', '2:00 pm', '3:00 pm', '4:00 pm',
+            '5:00 pm', '6:00 pm', '7:00 pm', '8:00 pm', '9:00 pm'
+        ];
+        
+        // --- Helper Functions ---
+
+        /**
+         * Formats a Date object to a readable string (e.g., Sat, Nov. 15, 2025)
+         * @param {Date} date 
+         */
+        function formatDate(date) {
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options).replace(/,/g, '');
+        }
+
+        /**
+         * Converts a 12-hour time string (e.g., '1:00 pm') to a 24-hour hour integer (e.g., 13).
+         * @param {string} timeStr - Time string (e.g., '1:00 pm').
+         * @returns {number} - The 24-hour integer hour.
+         */
+        function timeTo24Hour(timeStr) {
+            if (!timeStr) return -1;
+            const [time, period] = timeStr.split(' ');
+            let [hours] = time.split(':').map(Number);
+            
+            if (period === 'pm' && hours !== 12) {
+                hours += 12;
+            } else if (period === 'am' && hours === 12) {
+                hours = 0; // Midnight case
+            }
+            return hours;
+        }
+
+        /**
+         * Calculates the duration between two 12-hour time strings in hours.
+         * @param {string} startStr - Check-in time string.
+         * @param {string} endStr - Check-out time string.
+         * @returns {string} - Duration string (e.g., '3 HOURS').
+         */
+        function calculateDuration(startStr, endStr) {
+            const startHour = timeTo24Hour(startStr);
+            const endHour = timeTo24Hour(endStr);
+
+            if (startHour >= endHour) {
+                return 'Invalid Time';
+            }
+            const duration = endHour - startHour;
+            return `${duration} HOUR${duration > 1 ? 'S' : ''}`;
+        }
+        
+        // --- UI Rendering Functions ---
+
+        /**
+         * Renders the date slots for the current month.
+         */
+        function renderDateSlots() {
+            const container = document.getElementById('date-slots-container');
+            container.innerHTML = '';
+            
+            // Hardcode to November 2025 for consistency
+            const year = 2025;
+            const month = 10; // 0-indexed: November
+            
+            document.getElementById('current-month').textContent = `November ${year}`;
+
+            const daysInMonth = 30; 
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            
+            // Add empty slots for padding
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'p-3 rounded-lg text-center';
+                container.appendChild(emptySlot);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+                
+                const slot = document.createElement('div');
+                slot.className = `date-slot p-3 rounded-lg text-center border-parchment-border border-2 bg-white ${isSelected ? 'selected' : ''}`;
+                slot.textContent = date.getDate();
+                slot.dataset.date = date.toISOString();
+                slot.onclick = () => selectDate(date);
+                
+                container.appendChild(slot);
+            }
+        }
+
+        /**
+         * Renders the Check-in Time slots.
+         */
+        function renderStartTimes() {
+            const container = document.getElementById('start-time-slots-container');
+            container.innerHTML = TIME_SLOTS.slice(0, TIME_SLOTS.length - 1).map(startTime => { // Last slot cannot be a start time
+                const isSelected = startTime === selectedStartTime;
+                const isAfterEndTime = timeTo24Hour(startTime) >= timeTo24Hour(selectedEndTime);
+                // Disable start times that are the same as or after the current end time
+                const disabledClass = isAfterEndTime ? 'disabled' : ''; 
+                
+                return `
+                    <div class="time-slot p-3 rounded-lg text-center border-parchment-border border-2 bg-white ${isSelected ? 'selected' : ''} ${disabledClass}" 
+                        onclick="selectStartTime('${startTime}', this)">
+                        ${startTime}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        /**
+         * Renders the Check-out Time slots.
+         */
+        function renderEndTimes() {
+            const container = document.getElementById('end-time-slots-container');
+            // Check-out slots are based on TIME_SLOTS but skip the first one
+            container.innerHTML = TIME_SLOTS.slice(1).map(endTime => { 
+                const isSelected = endTime === selectedEndTime;
+                const isBeforeStartTime = timeTo24Hour(endTime) <= timeTo24Hour(selectedStartTime);
+                // Disable end times that are the same as or before the current start time
+                const disabledClass = isBeforeStartTime ? 'disabled' : '';
+
+                return `
+                    <div class="time-slot p-3 rounded-lg text-center border-parchment-border border-2 bg-white ${isSelected ? 'selected' : ''} ${disabledClass}" 
+                           onclick="selectEndTime('${endTime}', this)">
+                        ${endTime}
+                    </div>
+                `;
+            }).join('');
+        }
+
+
+        /**
+         * Updates the reservation and information summaries.
+         */
+        function updateSummaries() {
+            // Reservation Summary
+            document.getElementById('summary-date').textContent = formatDate(selectedDate);
+            document.getElementById('summary-check-in').textContent = selectedStartTime;
+            document.getElementById('summary-check-out').textContent = selectedEndTime;
+            document.getElementById('summary-length').textContent = calculateDuration(selectedStartTime, selectedEndTime);
+            document.getElementById('summary-group-size').textContent = `GROUP OF ${selectedGroupSize}`;
+
+            // Information Summary (from form inputs)
+            const firstName = document.getElementById('first-name').value || 'First Name';
+            const lastName = document.getElementById('last-name').value || 'Last Name';
+            const email = document.getElementById('email-address').value || 'Email Address @ .com';
+            const mobile = document.getElementById('mobile-number').value || '09999999999';
+
+            document.getElementById('summary-name').textContent = `${firstName} ${lastName}`;
+            document.getElementById('summary-email').textContent = email;
+            document.getElementById('summary-mobile').textContent = mobile;
+        }
+
+        // --- Interaction Handlers ---
+
+        function selectDate(date) {
+            selectedDate = date;
+            renderDateSlots();
+            updateSummaries(); // Real-time update
+        }
+        
+        function selectStartTime(startTime, element) {
+            if (element.classList.contains('disabled')) return;
+
+            // Update state
+            selectedStartTime = startTime;
+
+            // If the current end time is now before or the same as the new start time, reset the end time.
+            if (timeTo24Hour(selectedStartTime) >= timeTo24Hour(selectedEndTime)) {
+                // Find the next available slot after the new start time
+                const newEndHour = timeTo24Hour(selectedStartTime) + 1;
+                const nextEndTime = TIME_SLOTS.find(t => timeTo24Hour(t) === newEndHour);
+                if (nextEndTime) {
+                    selectedEndTime = nextEndTime;
+                } else {
+                    // This handles cases where the last possible start time is selected
+                    selectedEndTime = 'Invalid Time'; 
+                }
+            }
+
+            // Re-render both to update selected state and disable/enable classes
+            renderStartTimes(); 
+            renderEndTimes();
+            updateSummaries();
+        }
+
+        function selectEndTime(endTime, element) {
+            if (element.classList.contains('disabled')) return;
+
+            // Update state
+            selectedEndTime = endTime;
+
+            // Re-render both to update selected state and disable/enable classes
+            renderStartTimes();
+            renderEndTimes();
+            updateSummaries(); 
+        }
+
+        function selectGroupSize(size) {
+            selectedGroupSize = size;
+            
+            // Remove 'selected' class from all group size slots
+            document.querySelectorAll('.group-size-slot').forEach(slot => {
+                slot.classList.remove('selected', 'bg-deep-teal', 'text-white');
+                slot.classList.add('bg-white', 'text-caramel-gold');
+            });
+
+            // Set active state for the clicked slot
+            event.target.classList.add('selected', 'bg-deep-teal', 'text-white');
+            event.target.classList.remove('bg-white', 'text-caramel-gold');
+
+            updateSummaries();
+        }
+
+        function changeMonth(direction) {
+            // NOTE: Month changing is disabled for UI simplicity, as this is a front-end demo.
+            console.log(`Month change requested: ${direction > 0 ? 'Next' : 'Previous'}`);
+        }
+
+        /**
+         * Reserves the appointment and saves to Django database
+         */
+        async function reserveAppointment() {
+            const form = document.getElementById('reservation-form');
+            if (form.checkValidity()) {
+                if (timeTo24Hour(selectedStartTime) >= timeTo24Hour(selectedEndTime)) {
+                    alert('Error: Check-out Time must be after Check-in Time.');
+                    return;
+                }
+
+                // Create reservation object
+                const reservation = {
+                    date: formatDate(selectedDate),
+                    time: `${selectedStartTime} - ${selectedEndTime} (${calculateDuration(selectedStartTime, selectedEndTime)})`,
+                    groupSize: selectedGroupSize,
+                    details: {
+                        firstName: document.getElementById('first-name').value,
+                        lastName: document.getElementById('last-name').value,
+                        email: document.getElementById('email-address').value,
+                        mobile: document.getElementById('mobile-number').value
+                    }
+                };
+
+                // Prepare data for Django view
+                const bookingData = {
+                    date: selectedDate.toISOString().split('T')[0], // YYYY-MM-DD format
+                    time_slot: `${selectedStartTime} - ${selectedEndTime}`,
+                    group_size: selectedGroupSize,
+                    first_name: document.getElementById('first-name').value,
+                    last_name: document.getElementById('last-name').value,
+                    email: document.getElementById('email-address').value,
+                    mobile: document.getElementById('mobile-number').value
+                };
+
+                try {
+                    // Send booking data to Django view via AJAX
+                    const response = await fetch('/study/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken') // Include CSRF token
+                        },
+                        body: JSON.stringify(bookingData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Also save to cart for consistency
+                        let cart = JSON.parse(localStorage.getItem('cart')) || { menuItems: [], reservation: null };
+                        cart.reservation = reservation;
+                        localStorage.setItem('cart', JSON.stringify(cart));
+
+                        const confirmationMessage = `
+                            Reservation Received!
+                            Date: ${reservation.date}
+                            Check-in: ${selectedStartTime}
+                            Check-out: ${selectedEndTime}
+                            Duration: ${calculateDuration(selectedStartTime, selectedEndTime)}
+                            Group Size: ${selectedGroupSize}
+                            Reserved for: ${reservation.details.firstName} ${reservation.details.lastName}
+                            Email: ${reservation.details.email}
+                            ✅ Reservation saved! Please confirm in your dashboard.
+                            We look forward to seeing you at The Knowledge Sanctum!
+                        `;
+                        console.log(confirmationMessage);
+                        alert('Reservation received! Please check your dashboard to confirm the booking.');
+                    } else {
+                        alert('Failed to save reservation. Please try again.');
+                    }
+                } catch (error) {
+                    console.error("Error saving reservation:", error);
+                    alert('Failed to save reservation. Please try again.');
+                }
+            } else {
+                alert('Please fill in all required fields (First Name, Last Name, Email Address).');
+            }
+        }
+
+        /**
+         * Helper function to get CSRF token from cookies
+         */
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // --- Initialization ---
+
+        window.onload = async function() {
+            // Initialize Supabase first
+            await initializeSupabase();
+
+            // Initialize lucide icons
+            lucide.createIcons();
+
+            // Initial render
+            renderDateSlots();
+            renderStartTimes();
+            renderEndTimes();
+            updateSummaries();
+
+            // Setup real-time form input listener
+            document.getElementById('reservation-form').addEventListener('input', updateSummaries);
+
+            // Set initial selected state for group size slot (5 Pax by default)
+            const defaultGroupSlot = document.querySelector(`.group-size-slot[onclick="selectGroupSize(${selectedGroupSize})"]`);
+            if (defaultGroupSlot) {
+                defaultGroupSlot.classList.add('selected', 'bg-deep-teal', 'text-white');
+                defaultGroupSlot.classList.remove('bg-white', 'text-dark-bg');
+            }
+        };
+
+    </script>
+</body>
+</html>
+{% endblock %}

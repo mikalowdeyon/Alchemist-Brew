@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Load Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Custom Tailwind Configuration -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'light-pink': '#F8E9E9',
+                    'med-pink': '#F0D4D4',
+                    'dark-pink': '#E9A0A0',
+                    'text-pink': '#C08080',
+                    'profile-icon': '#E56D6D',
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    display: ['Georgia', 'serif'],
+                },
+            }
+        }
+    }
+</script>
+
+<!-- Dashboard Content -->
+<section class="hero-section bg-gradient-to-br from-purple-100 via-pink-50 to-indigo-100 py-16 px-8 rounded-2xl shadow-2xl mx-4 my-8" id="hero-section">
+    <div class="hero-content text-center">
+        <h1 class="hero-title text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">The Alchemist's Dashboard</h1>
+        <p class="hero-description text-lg text-gray-700 max-w-2xl mx-auto leading-relaxed">
+            Welcome back, apprentice! Here you can manage your mystical orders and study room reservations. Confirm your pending enchantments to complete the ritual.
+        </p>
+        <div class="mt-6">
+            <div class="inline-block w-16 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Orders Section -->
+<section class="menu-preview-section bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-6 rounded-2xl shadow-xl mx-4 my-8">
+    <h2 class="menu-preview-heading text-3xl font-bold text-center text-blue-800 mb-4">Your Brewed Orders</h2>
+    <p class="menu-preview-subtitle text-center text-blue-600 mb-8">
+        Review and confirm your potion orders. Each sip brings you closer to perfection.
+    </p>
+    <div class="flex flex-wrap justify-center gap-6">
+    {% for order in orders %}
+    <div class="relative flex w-80 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+        <div class="relative mx-4 -mt-6 h-40 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+            <img src="{% static 'signin-img/Order.png' %}" alt="Order Icon" class="w-24 h-24 object-cover rounded-full">
+        </div>
+        <div class="p-6">
+            <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
+                Order #{{ order.id }}
+            </h5>
+            <p class="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
+                Brewed on: {{ order.created_at|date:"M d, Y H:i" }}<br>
+                Total Cost: ₱{{ order.total_price }}<br>
+                Status: {% if order.is_confirmed %}<span style="color: #4CAF50;">Confirmed</span>{% else %}<span style="color: #FF9800;">Pending</span>{% endif %}
+            </p>
+        </div>
+        {% if not order.is_confirmed %}
+        <div class="p-6 pt-0">
+            <form method="post" style="display: inline-block; margin-right: 10px;">
+                {% csrf_token %}
+                <input type="hidden" name="order_id" value="{{ order.id }}">
+                <label for="payment_method_order_{{ order.id }}" style="font-size: 14px; color: #3f2f45; display: block; margin-bottom: 5px;">Payment Method:</label>
+                <select name="payment_method" id="payment_method_order_{{ order.id }}" required style="margin: 5px; padding: 5px; border-radius: 5px; border: 1px solid #00BCD4;">
+                    <option value="cash">Cash</option>
+                    <option value="gcash">GCash</option>
+                    <option value="card">Card</option>
+                </select>
+                <button type="submit" name="confirm_order" class="select-none rounded-lg bg-blue-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mt-2">
+                    Confirm Order
+                </button>
+            </form>
+            <form method="post" style="display: inline-block;">
+                {% csrf_token %}
+                <input type="hidden" name="cancel_order" value="{{ order.id }}">
+                <button type="submit" class="select-none rounded-lg bg-red-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-red-500/20 transition-all hover:shadow-lg hover:shadow-red-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mt-2">
+                    Cancel Order
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 50px; color: #3f2f45; font-style: italic;">
+        <p>No orders yet. Time to brew some magic!</p>
+    </div>
+    {% endfor %}
+    </div>
+</section>
+
+<!-- Bookings Section -->
+<section class="menu-preview-section bg-gradient-to-br from-green-50 to-emerald-50 py-12 px-6 rounded-2xl shadow-xl mx-4 my-8">
+    <h2 class="menu-preview-heading text-3xl font-bold text-center text-green-800 mb-4">Study Room Reservations</h2>
+    <p class="menu-preview-subtitle text-center text-green-600 mb-8">
+        Your sanctuaries of knowledge await. Confirm your bookings to secure your place in the arcane library.
+    </p>
+    <div class="flex flex-wrap justify-center gap-6">
+    {% for booking in bookings %}
+    <div class="relative flex w-80 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+        <div class="relative mx-4 -mt-6 h-40 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+            <img src="{% static 'signin-img/Booking.png' %}" alt="Booking Icon" class="w-24 h-24 object-cover rounded-full">
+        </div>
+        <div class="p-6">
+            <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
+                Booking #{{ booking.id }}
+            </h5>
+            <p class="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
+                Date: {{ booking.date|date:"M d, Y" }}<br>
+                Time Slot: {{ booking.time_slot }}<br>
+                Status: {% if booking.is_confirmed %}<span style="color: #4CAF50;">Confirmed</span>{% else %}<span style="color: #FF9800;">Pending</span>{% endif %}
+            </p>
+        </div>
+        {% if not booking.is_confirmed %}
+        <div class="p-6 pt-0">
+            <form method="post" style="display: inline-block; margin-right: 10px;">
+                {% csrf_token %}
+                <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                <label for="payment_method_booking_{{ booking.id }}" style="font-size: 14px; color: #3f2f45; display: block; margin-bottom: 5px;">Payment Method:</label>
+                <select name="payment_method" id="payment_method_booking_{{ booking.id }}" required style="margin: 5px; padding: 5px; border-radius: 5px; border: 1px solid #00BCD4;">
+                    <option value="cash">Cash</option>
+                    <option value="gcash">GCash</option>
+                    <option value="card">Card</option>
+                </select>
+                <button type="submit" name="confirm_booking" class="select-none rounded-lg bg-green-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-green-500/20 transition-all hover:shadow-lg hover:shadow-green-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mt-2">
+                    Confirm Booking
+                </button>
+            </form>
+            <form method="post" style="display: inline-block;">
+                {% csrf_token %}
+                <input type="hidden" name="cancel_booking" value="{{ booking.id }}">
+                <button type="submit" class="select-none rounded-lg bg-red-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-red-500/20 transition-all hover:shadow-lg hover:shadow-red-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mt-2">
+                    Cancel Booking
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 50px; color: #3f2f45; font-style: italic;">
+        <p>No bookings yet. Reserve your spot in the mystical study chambers!</p>
+    </div>
+    {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,878 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlight Profile - Alchemist's Brew</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'light-pink': '#F8E9E9',   /* Pale Pink Background */
+                        'med-pink': '#F0D4D4',     /* Sidebar Background */
+                        'dark-pink': '#E9A0A0',    /* Input/Button Background */
+                        'text-pink': '#C08080',    /* Darker Pink Text/Accent */
+                        'profile-icon': '#E56D6D', /* Bright Icon/Accent Color */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Georgia', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: var(--light-pink);
+            font-family: 'Inter', sans-serif;
+            color: #C08080;
+        }
+
+        /* Header strip below the nav bar */
+        .header-strip {
+            height: 30px;
+            background-color: #F0E0E0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Styling for the main section title (e.g., Starlight Profile) */
+        .section-title {
+            font-family: 'Georgia', serif;
+            font-size: 2.5rem;
+            color: #E9A0A0; /* Dark Pink */
+            text-shadow: 2px 2px 0 #F8E9E9; /* Pale Pink 3D Shadow */
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+
+        /* Input field styling based on screenshot */
+        .pink-input {
+            background-color: #F0D4D4; /* Med Pink */
+            border: 1px solid #E9A0A0; /* Dark Pink Border */
+            color: #C08080;
+            padding: 0.75rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .pink-input:focus {
+            background-color: #FFF;
+            border-color: #E56D6D; /* Brighter accent on focus */
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(229, 109, 109, 0.5);
+        }
+
+        /* Profile Menu Link Styling */
+        .menu-link {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #C08080;
+            cursor: pointer;
+            padding: 8px 0;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .menu-link:hover {
+            color: #E56D6D; /* Brighter red on hover */
+        }
+        .menu-link.active {
+            color: #E56D6D;
+            font-weight: 700;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        }
+
+        /* Custom Icon Styling */
+        .profile-icon {
+            color: #E56D6D;
+            fill: #E56D6D;
+        }
+        .text-profile-icon {
+            color: #E56D6D;
+        }
+        
+        /* Order History Boxes */
+        .order-box {
+            background-color: #F0D4D4;
+            border: 1px solid #E9A0A0;
+            min-height: 150px;
+        }
+
+        /* Status Tag Styling */
+        .status-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 9999px; /* rounded-full */
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            letter-spacing: 0.05em;
+        }
+        .status-ongoing { background-color: #F7D89B; color: #9A5A00; } /* Yellowish for Ongoing */
+        .status-processing { background-color: #A0E9A0; color: #007000; } /* Greenish for Processing */
+        .status-completed { background-color: #E9A0A0; color: #FFFFFF; } /* Dark Pink for Completed */
+        .status-cancelled { background-color: #C0C0C0; color: #555555; } /* Grey for Cancelled */
+
+        /* Hide content sections by default */
+        .profile-section {
+            display: none;
+        }
+        .profile-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Django Profile Management Script -->
+    <script>
+        var userOrdersData = '{{ user_orders|escapejs }}';
+        var csrfToken = '{{ csrf_token }}';
+        // --- UI LOGIC & NAVIGATION ---
+
+        /**
+         * Navigates between profile sections.
+         * @param {string} sectionId - The ID of the section to show.
+         */
+        window.showSection = function(sectionId) {
+            // 1. Hide all content sections
+            document.querySelectorAll('.profile-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // 2. Show the requested section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // 3. Update active menu link styling
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(`link-${sectionId}`).classList.add('active');
+
+            // 4. Update the main page title
+            const titleMap = {
+                'starlight-profile': 'Starlight Profile',
+                'past-orders': 'Spellbound Transactions',
+                'change-username-email': 'Ethereal Rebirth',
+                'change-password': 'The Key of Renewal',
+                'log-out': 'Exit the Realm',
+                'delete-account': 'Release to the Stars'
+            };
+            document.getElementById('section-main-title').textContent = titleMap[sectionId] || 'Profile Settings';
+
+            // 5. Ensure UI is populated if it's the main profile
+            if (sectionId === 'starlight-profile') {
+                updateProfileUI();
+            } else if (sectionId === 'past-orders') {
+                renderPastOrders();
+            }
+        }
+
+        /**
+         * Populates the Starlight Profile form with Django user data.
+         */
+        function updateProfileUI() {
+            // Get Django context data
+            const djangoUsername = '{{ user.username }}';
+            const djangoContact = '{{ contact }}';
+
+            // Update sidebar username
+            document.getElementById('sidebar-username').textContent = djangoUsername;
+            document.getElementById('profile-form-username').value = djangoUsername;
+            document.getElementById('profile-form-email').value = '{{ user.email|default:"" }}';
+            document.getElementById('profile-form-contact').value = djangoContact;
+
+            // Update Ethereal Rebirth (Username/Email change)
+            document.getElementById('current-username').value = djangoUsername;
+            document.getElementById('current-email').value = '{{ user.email|default:"" }}';
+
+            // If a section is already active, re-render it
+            const activeSection = document.querySelector('.profile-section.active');
+            if (activeSection) {
+                showSection(activeSection.id);
+            } else {
+                // Default to showing the main profile page
+                showSection('starlight-profile');
+            }
+        }
+
+        /**
+         * Handles the form submission for the main Starlight Profile form.
+         */
+        window.handleProfileUpdate = function() {
+            const formData = new FormData();
+            formData.append('username', document.getElementById('profile-form-username').value);
+            formData.append('email', document.getElementById('profile-form-email').value);
+            formData.append('contact', document.getElementById('profile-form-contact').value);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch('/profile/update/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Information updated successfully!");
+                    // Reload page to show updated data
+                    window.location.reload();
+                } else {
+                    alert("Failed to update information: " + (data.error || "Unknown error"));
+                }
+            })
+            .catch(error => {
+                console.error("Error updating profile:", error);
+                alert("Failed to update information. Please try again.");
+            });
+        }
+
+        /**
+         * Handles the username/email update form.
+         */
+        window.handleUsernameEmailUpdate = function() {
+            const newUsername = document.getElementById('new-username').value;
+            const newEmail = document.getElementById('new-email').value;
+
+            if (!newUsername && !newEmail) {
+                alert("Please enter at least a new username or email.");
+                return;
+            }
+
+            const formData = new FormData();
+            if (newUsername) formData.append('username', newUsername);
+            if (newEmail) formData.append('email', newEmail);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch('/profile/update/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Username/Email updated successfully!");
+                    // Reload page to show updated data
+                    window.location.reload();
+                } else {
+                    alert("Failed to update: " + (data.error || "Unknown error"));
+                }
+            })
+            .catch(error => {
+                console.error("Error updating username/email:", error);
+                alert("Failed to update. Please try again.");
+            });
+        }
+
+        /**
+         * Renders the user's past orders from Django context.
+         */
+        function renderPastOrders() {
+            const container = document.getElementById('past-orders-list');
+            container.innerHTML = '';
+
+            // Get orders from Django context
+            const orders = JSON.parse(userOrdersData);
+
+            if (orders.length === 0) {
+                 container.innerHTML = `<div class="p-8 text-center text-text-pink/70 italic">No spellbound transactions found in the archives.</div>`;
+                 return;
+            }
+
+            orders.forEach(order => {
+                // Determine CSS class for status color
+                let statusClass = 'status-completed'; // Default
+                const status = order.status || 'completed';
+                switch (status.toLowerCase()) {
+                    case 'ongoing':
+                    case 'pending':
+                        statusClass = 'status-ongoing';
+                        break;
+                    case 'processing':
+                        statusClass = 'status-processing';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'status-cancelled';
+                        break;
+                    case 'completed':
+                    default:
+                        statusClass = 'status-completed';
+                        break;
+                }
+
+                const orderEl = document.createElement('div');
+                orderEl.className = 'order-box p-6 rounded-xl shadow-md mb-6 transition-transform hover:scale-[1.01]';
+                orderEl.innerHTML = `
+                    <div class="flex justify-between items-start mb-2 border-b border-dark-pink/30 pb-2">
+                        <p class="text-lg font-bold text-text-pink tracking-wide">Order #${order.id}</p>
+                        <span class="status-tag ${statusClass}">${status.toUpperCase()}</span>
+                    </div>
+                    <p class="text-sm text-text-pink/80 mb-3">Order Date: ${order.created_at}</p>
+
+                    <div class="space-y-1 text-sm text-text-pink font-semibold">
+                        <p>Items Transferred:</p>
+                        <ul class="list-disc list-inside ml-4 text-xs italic text-text-pink/70">
+                            ${order.items.map(item => `<li>${item.name} x ${item.quantity}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t border-dark-pink/30 mt-4">
+                        <p class="font-bold text-xl text-profile-icon">Total: ₱${order.total_price}</p>
+                        <div class="space-x-3">
+                            <button class="bg-dark-pink text-white text-sm px-4 py-2 rounded-lg hover:bg-profile-icon transition-colors shadow-lg" onclick="alert('Tracking feature coming soon!')">Track Order</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(orderEl);
+            });
+        }
+
+        /**
+         * Helper to generate options for select menus.
+         */
+        function populateDOBSelects() {
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('dob-year');
+            const monthSelect = document.getElementById('dob-month');
+            const daySelect = document.getElementById('dob-day');
+
+            // Year
+            for (let i = currentYear; i >= currentYear - 100; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+
+            // Month
+            for (let i = 1; i <= 12; i++) {
+                const monthName = new Date(0, i - 1).toLocaleString('default', { month: 'long' });
+                const monthValue = String(i).padStart(2, '0');
+                const option = document.createElement('option');
+                option.value = monthValue;
+                option.textContent = monthName;
+                monthSelect.appendChild(option);
+            }
+
+            // Day (Max 31, simple for demo)
+            for (let i = 1; i <= 31; i++) {
+                const dayValue = String(i).padStart(2, '0');
+                const option = document.createElement('option');
+                option.value = dayValue;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+        }
+
+        /**
+         * Handles password change form.
+         */
+        window.handlePasswordChange = function() {
+            const oldPassword = document.getElementById('old-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-new-password').value;
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert("Please fill in all password fields.");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("New passwords do not match.");
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                alert("New password must be at least 8 characters long.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('old_password', oldPassword);
+            formData.append('new_password', newPassword);
+            formData.append('confirm_password', confirmPassword);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch('/profile/change-password/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // Redirect to login page after password change
+                    window.location.href = '/login/';
+                } else {
+                    alert("Failed to change password: " + (data.error || "Unknown error"));
+                }
+            })
+            .catch(error => {
+                console.error("Error changing password:", error);
+                alert("Failed to change password. Please try again.");
+            });
+        }
+
+        /**
+         * Handles Log Out action.
+         */
+        window.handleLogout = function() {
+            if (confirm('Are you sure you want to log out?')) {
+                window.location.href = '/logout/';
+            }
+        }
+
+        /**
+         * Handles Delete Account action.
+         */
+        window.handleDeleteAccount = function() {
+            alert("Account Deletion is a powerful ritual! (Feature not fully implemented in this demo, but the prompt would follow after confirmation.)");
+        }
+
+        /**
+         * Handles profile image upload.
+         */
+        document.getElementById('profile-image-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('profile_image', file);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                fetch('/profile/upload-image/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Profile image uploaded successfully!");
+                        // Reload page to show updated image
+                        window.location.reload();
+                    } else {
+                        alert("Failed to upload image: " + (data.error || "Unknown error"));
+                    }
+                })
+                .catch(error => {
+                    console.error("Error uploading image:", error);
+                    alert("Failed to upload image. Please try again.");
+                });
+            }
+        });
+
+        /**
+         * Handles profile image removal.
+         */
+        window.removeProfileImage = function() {
+            if (confirm('Are you sure you want to remove your profile image?')) {
+                const formData = new FormData();
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                fetch('/profile/upload-image/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Profile image removed successfully!");
+                        // Reload page to show default icon
+                        window.location.reload();
+                    } else {
+                        alert("Failed to remove image: " + (data.error || "Unknown error"));
+                    }
+                })
+                .catch(error => {
+                    console.error("Error removing image:", error);
+                    alert("Failed to remove image. Please try again.");
+                });
+            }
+        }
+
+        /**
+         * Sends verification code for email or contact.
+         */
+        window.sendVerificationCode = function(codeType, value) {
+            if (!value) {
+                alert("Please enter a valid " + (codeType === 'email' ? 'email address' : 'contact number') + ".");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('code_type', codeType);
+            formData.append('value', value);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch('/profile/send-verification-code/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // Show verification input
+                    showVerificationInput(codeType, value);
+                } else {
+                    alert("Failed to send verification code: " + (data.error || "Unknown error"));
+                }
+            })
+            .catch(error => {
+                console.error("Error sending verification code:", error);
+                alert("Failed to send verification code. Please try again.");
+            });
+        }
+
+        /**
+         * Shows verification input for code entry.
+         */
+        function showVerificationInput(codeType, value) {
+            const verificationHtml = `
+                <div id="verification-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4">
+                        <h3 class="text-xl font-bold text-text-pink mb-4">Verify ${codeType === 'email' ? 'Email' : 'Contact'}</h3>
+                        <p class="text-sm text-gray-600 mb-4">Enter the 6-digit code sent to ${value}</p>
+                        <input type="text" id="verification-code" class="pink-input mb-4" placeholder="Enter code" maxlength="6">
+                        <div class="flex space-x-4">
+                            <button onclick="verifyCode('${codeType}', '${value}')" class="bg-dark-pink text-white px-6 py-2 rounded-lg hover:bg-profile-icon transition-colors">
+                                Verify
+                            </button>
+                            <button onclick="closeVerificationModal()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', verificationHtml);
+        }
+
+        /**
+         * Closes the verification modal.
+         */
+        function closeVerificationModal() {
+            const modal = document.getElementById('verification-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        /**
+         * Verifies the entered code.
+         */
+        window.verifyCode = function(codeType, value) {
+            const code = document.getElementById('verification-code').value;
+            if (!code || code.length !== 6) {
+                alert("Please enter a valid 6-digit code.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('code_type', codeType);
+            formData.append('code', code);
+            formData.append('value', value);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch('/profile/verify-code/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    closeVerificationModal();
+                    // Reload page to show verified status
+                    window.location.reload();
+                } else {
+                    alert("Verification failed: " + (data.error || "Invalid code"));
+                }
+            })
+            .catch(error => {
+                console.error("Error verifying code:", error);
+                alert("Failed to verify code. Please try again.");
+            });
+        }
+
+        // --- MAIN ENTRY POINT ---
+        window.onload = () => {
+            populateDOBSelects();
+            updateProfileUI();
+        };
+
+    </script>
+
+    <!-- Header Strip -->
+    <div class="header-strip" style="height: 30px; background-color: #F0E0E0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);"></div>
+
+    <!-- 2. Main Profile Content Area -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-4 min-h-[700px]">
+            
+            <!-- LEFT COLUMN: Profile Sidebar -->
+            <div class="lg:col-span-1 bg-med-pink p-8 flex flex-col items-center">
+                <!-- Profile Icon & Username -->
+                <div class="mb-8 text-center">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-light-pink border-4 border-profile-icon flex items-center justify-center">
+                        <i data-lucide="user-circle" class="profile-icon w-16 h-16"></i>
+                    </div>
+                    <p id="sidebar-username" class="text-xl font-semibold mt-2 text-profile-icon">Username</p>
+                </div>
+
+                <!-- Profile Menu -->
+                <nav class="w-full space-y-4 text-center">
+                    <a id="link-starlight-profile" class="menu-link" onclick="showSection('starlight-profile')">Starlight Profile</a>
+                    <a id="link-past-orders" class="menu-link" onclick="showSection('past-orders')">Check Past Orders</a>
+                    <a id="link-change-username-email" class="menu-link" onclick="showSection('change-username-email')">Change Username/Email</a>
+                    <a id="link-change-password" class="menu-link" onclick="showSection('change-password')">Change Password</a>
+                    <a id="link-log-out" class="menu-link" onclick="showSection('log-out')">Log Out</a>
+                    <a id="link-delete-account" class="menu-link" onclick="showSection('delete-account')">Delete Account</a>
+                </nav>
+            </div>
+            
+            <!-- RIGHT COLUMN: Section Content -->
+            <div class="lg:col-span-3 p-8 bg-light-pink relative">
+                 <div class="text-xs absolute top-2 right-2 text-gray-500">
+                    <span id="user-id-display" class="font-mono"></span>
+                </div>
+                <!-- Section Title -->
+                <div class="mb-12 text-left">
+                    <h2 id="section-main-title" class="section-title inline-block"></h2>
+                </div>
+
+                <!-- ---------------------------------------------------- -->
+                <!-- 1. Starlight Profile (Default View) -->
+                <!-- ---------------------------------------------------- -->
+                <section id="starlight-profile" class="profile-section active">
+                    <form onsubmit="event.preventDefault(); handleProfileUpdate();" class="space-y-6 max-w-lg">
+                        
+                        <label class="block">
+                            <span class="font-medium text-text-pink">Username</span>
+                            <input type="text" id="profile-form-username" class="pink-input mt-1" required>
+                        </label>
+                        
+                        <label class="block">
+                            <span class="font-medium text-text-pink">E-mail</span>
+                            <div class="flex items-center mt-1">
+                                <input type="email" id="profile-form-email" class="pink-input flex-1" required>
+                                {% if not user_profile.email_verified %}
+                                    <button type="button" onclick="sendVerificationCode('email', document.getElementById('profile-form-email').value)" class="ml-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors">
+                                        Verify
+                                    </button>
+                                {% else %}
+                                    <span class="ml-2 text-green-600 text-sm font-semibold">✓ Verified</span>
+                                {% endif %}
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <span class="font-medium text-text-pink">Contact Number</span>
+                            <div class="flex items-center mt-1">
+                                <input type="tel" id="profile-form-contact" class="pink-input flex-1" required>
+                                {% if not user_profile.contact_verified %}
+                                    <button type="button" onclick="sendVerificationCode('contact', document.getElementById('profile-form-contact').value)" class="ml-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors">
+                                        Verify
+                                    </button>
+                                {% else %}
+                                    <span class="ml-2 text-green-600 text-sm font-semibold">✓ Verified</span>
+                                {% endif %}
+                            </div>
+                        </label>
+
+                        <div class="space-y-2">
+                            <span class="font-medium text-text-pink block">Date of Birth (Optional)</span>
+                            <div class="grid grid-cols-3 gap-4">
+                                <select id="dob-month" class="pink-input appearance-none text-text-pink cursor-pointer">
+                                    <option value="" disabled selected>Month</option>
+                                </select>
+                                <select id="dob-day" class="pink-input appearance-none text-text-pink cursor-pointer">
+                                    <option value="" disabled selected>Day</option>
+                                </select>
+                                <select id="dob-year" class="pink-input appearance-none text-text-pink cursor-pointer">
+                                    <option value="" disabled selected>Year</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <span class="font-medium text-text-pink block">Gender (Optional)</span>
+                            <select id="profile-form-gender" class="pink-input appearance-none text-text-pink cursor-pointer">
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                                <option value="Non-Binary">Non-Binary</option>
+                                <option value="Prefer Not to Say">Prefer Not to Say</option>
+                            </select>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button type="submit" class="bg-dark-pink text-white px-8 py-3 rounded-xl font-semibold hover:bg-profile-icon transition-colors shadow-lg">
+                                Update Information
+                            </button>
+                        </div>
+                    </form>
+                </section>
+                
+                <!-- ---------------------------------------------------- -->
+                <!-- 2. Check Past Orders -->
+                <!-- ---------------------------------------------------- -->
+                <section id="past-orders" class="profile-section">
+                    <h3 class="text-xl font-bold text-text-pink mb-4">Purchasing History</h3>
+                    <div id="past-orders-list" class="max-h-[600px] overflow-y-auto pr-2">
+                        <!-- Order list will be rendered here by JS -->
+                    </div>
+                </section>
+
+                <!-- ---------------------------------------------------- -->
+                <!-- 3. Change Username/Email (Ethereal Rebirth) -->
+                <!-- ---------------------------------------------------- -->
+                <section id="change-username-email" class="profile-section">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 mx-auto rounded-full bg-light-pink border-4 border-profile-icon flex items-center justify-center mr-4 relative">
+                            {% if user_profile.profile_image %}
+                                <img src="{{ user_profile.profile_image.url }}" alt="Profile Image" class="w-full h-full rounded-full object-cover">
+                            {% else %}
+                                <i data-lucide="user-circle" class="profile-icon w-12 h-12"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <input type="file" id="profile-image-input" accept="image/*" class="hidden">
+                            <button class="bg-dark-pink/70 text-white text-sm px-4 py-1 rounded-lg hover:bg-dark-pink transition-colors mr-2" onclick="document.getElementById('profile-image-input').click()">Upload</button>
+                            <button class="bg-dark-pink/70 text-white text-sm px-4 py-1 rounded-lg hover:bg-dark-pink transition-colors" onclick="removeProfileImage()">Remove</button>
+                        </div>
+                    </div>
+
+                    <form onsubmit="event.preventDefault(); handleUsernameEmailUpdate();" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+                        
+                        <label class="block">
+                            <span class="font-medium text-text-pink">Username (Current)</span>
+                            <input type="text" id="current-username" class="pink-input mt-1 cursor-not-allowed bg-med-pink/50" readonly>
+                        </label>
+                        <label class="block">
+                            <span class="font-medium text-text-pink">E-mail (Current)</span>
+                            <input type="email" id="current-email" class="pink-input mt-1 cursor-not-allowed bg-med-pink/50" readonly>
+                        </label>
+
+                        <label class="block">
+                            <span class="font-medium text-text-pink">New Username</span>
+                            <input type="text" id="new-username" class="pink-input mt-1" placeholder="Enter New Username">
+                        </label>
+                        <label class="block">
+                            <span class="font-medium text-text-pink">New E-mail</span>
+                            <input type="email" id="new-email" class="pink-input mt-1" placeholder="Enter New E-mail">
+                        </label>
+                        
+                        <div class="md:col-span-2 pt-4 flex justify-start">
+                            <button type="submit" class="bg-dark-pink text-white px-8 py-3 rounded-xl font-semibold hover:bg-profile-icon transition-colors shadow-lg">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- ---------------------------------------------------- -->
+                <!-- 4. Change Password (The Key of Renewal) -->
+                <!-- ---------------------------------------------------- -->
+                <section id="change-password" class="profile-section">
+                    <form onsubmit="event.preventDefault(); handlePasswordChange();" class="space-y-6 max-w-lg">
+                        
+                        <label class="block">
+                            <span class="font-medium text-text-pink">Old Password</span>
+                            <input type="password" id="old-password" class="pink-input mt-1" required>
+                        </label>
+                        
+                        <label class="block">
+                            <span class="font-medium text-text-pink">New Password</span>
+                            <input type="password" id="new-password" class="pink-input mt-1" required>
+                        </label>
+                        
+                        <label class="block">
+                            <span class="font-medium text-text-pink">Confirm New Password</span>
+                            <input type="password" id="confirm-new-password" class="pink-input mt-1" required>
+                        </label>
+                        
+                        <div class="pt-4">
+                            <button type="submit" class="bg-dark-pink text-white px-8 py-3 rounded-xl font-semibold hover:bg-profile-icon transition-colors shadow-lg">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- ---------------------------------------------------- -->
+                <!-- 5. Log Out (Exit the Realm) -->
+                <!-- ---------------------------------------------------- -->
+                <section id="log-out" class="profile-section flex flex-col items-center justify-center min-h-[400px]">
+                    <p class="text-xl font-bold text-text-pink mb-6 text-center">
+                        The enchantment fades — do you wish to depart the sanctum?
+                    </p>
+                    <div class="flex space-x-8">
+                        <button onclick="handleLogout()" class="bg-dark-pink text-white px-8 py-3 rounded-xl font-semibold hover:bg-profile-icon transition-colors shadow-lg">
+                            Yes
+                        </button>
+                        <button onclick="showSection('starlight-profile')" class="bg-dark-pink/50 text-white px-8 py-3 rounded-xl font-semibold hover:bg-dark-pink transition-colors shadow-lg">
+                            No
+                        </button>
+                    </div>
+                </section>
+
+                <!-- ---------------------------------------------------- -->
+                <!-- 6. Delete Account (Release to the Stars) -->
+                <!-- ---------------------------------------------------- -->
+                <section id="delete-account" class="profile-section flex flex-col items-center justify-center min-h-[400px]">
+                    <p class="text-xl font-bold text-text-pink mb-6 text-center">
+                        Your mark will be removed from the archives. <br> Do you choose to unweave your magic?
+                    </p>
+                    <div class="flex space-x-8">
+                        <button onclick="handleDeleteAccount()" class="bg-dark-pink text-white px-8 py-3 rounded-xl font-semibold hover:bg-profile-icon transition-colors shadow-lg">
+                            Yes
+                        </button>
+                        <button onclick="showSection('starlight-profile')" class="bg-dark-pink/50 text-white px-8 py-3 rounded-xl font-semibold hover:bg-dark-pink transition-colors shadow-lg">
+                            No
+                        </button>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Ensure Lucide icons are rendered
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
+{% endblock %}

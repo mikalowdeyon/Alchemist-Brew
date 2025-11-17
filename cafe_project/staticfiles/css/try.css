@@ -1,0 +1,98 @@
+/* static/css/style.css */
+/* Full design CSS for the Alchemist's Brew site */
+
+/* CSS Variables for Dynamic Colors (Controlled by JavaScript) */
+:root {
+    --primary-pink: #fce8f0; /* Default */
+    --secondary-pink: #e76f92; /* Accent */
+    --text-dark: #3f2f45;
+    --font-serif: 'Playfair Display', serif;
+    --font-cursive: 'Purple Purse', cursive;
+    --menu-section-bg: #F4DCE3;
+}
+
+/* Reset + globals */
+*{margin:0;padding:0;box-sizing:border-box;transition:background-color .5s ease,color .5s ease}
+body{font-family:Arial, sans-serif;min-height:100vh;overflow-x:hidden;background-color:var(--primary-pink)}
+a{color:inherit}
+button{cursor:pointer;border:0;background:0}
+
+/* NAVBAR */
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:15px 50px;background-color:var(--primary-pink);color:var(--text-dark);border-bottom:1px solid rgba(0,0,0,.05);font-family:var(--font-cursive);position:sticky;top:0;z-index:10}
+.logo-container{display:flex;align-items:center;text-decoration:none;color:var(--text-dark);font-size:24px}
+.logo-icon{width:40px;height:40px;margin-right:10px}
+.nav-links{display:flex;gap:30px}
+.nav-item{ text-decoration:none;color:var(--text-dark);padding:5px 10px;font-size:18px;position:relative}
+.nav-item.current{ text-decoration:underline;text-decoration-color:var(--secondary-pink);text-underline-offset:8px;font-weight:bold }
+.contact-button{ border:1px solid var(--secondary-pink); border-radius:20px;padding:5px 15px;background-color:transparent;font-size:18px}
+.nav-actions{display:flex;align-items:center;gap:15px}
+.cart-icon{font-size:24px;text-decoration:none}
+.register-btn{background-color:transparent;border:1px solid var(--secondary-pink);color:var(--text-dark);padding:8px 15px;border-radius:20px;cursor:pointer;font-family:var(--font-cursive);font-size:16px}
+.dropdown-arrow-link{ text-decoration:none;color:var(--text-dark)}
+.dropdown-arrow{display:inline-block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid var(--text-dark);transform:translateY(2px)}
+
+/* HERO */
+.hero-section{display:flex;justify-content:space-between;align-items:center;padding:50px 100px;gap:40px;min-height:calc(100vh - 70px)}
+.hero-content{flex:1;max-width:50%;display:flex;flex-direction:column;gap:20px}
+.hero-title{font-family:var(--font-serif);font-size:7vw;line-height:1;color:var(--text-dark);font-weight:700}
+@media (min-width:1400px){.hero-title{font-size:100px}}
+.hero-description{font-size:18px;color:var(--text-dark);max-width:400px}
+.hero-buttons{display:flex;gap:15px;margin-top:20px}
+.btn{padding:10px 25px;border-radius:30px;cursor:pointer;font-size:16px;font-weight:bold;transition:all .3s}
+.primary-btn{background-color:var(--secondary-pink);color:white;border:1px solid var(--secondary-pink);box-shadow:0 4px 8px rgba(0,0,0,.2);text-decoration:none;display:inline-block}
+.secondary-btn{background-color:transparent;color:var(--text-dark);border:1px solid var(--secondary-pink);text-decoration:none;display:inline-block}
+.primary-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.25)}
+.secondary-btn:hover{background-color:rgba(255,255,255,.5)}
+
+/* Drink previews */
+.drink-previews{display:flex;gap:15px;margin-top:40px}
+.preview-link{border:2px solid transparent;border-radius:10px;padding:5px;opacity:.7;transition:all .3s}
+.preview-link.active{opacity:1;border-color:var(--secondary-pink);box-shadow:0 0 10px rgba(0,0,0,.1)}
+.preview-img{width:80px;height:auto;display:block}
+
+/* Hero image container */
+.hero-image-container{flex:1;max-width:50%;display:flex;justify-content:center;align-items:center;position:relative;padding:50px;background:radial-gradient(circle at 70% 50%, rgba(255,182,193,0.6) 0%, transparent 70%);border-radius:50%}
+.hero-drink-image{max-width:100%;height:auto;display:block;z-index:2}
+
+/* Alt content */
+#alt-content{display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;text-align:center;padding:100px 50px;min-height:calc(100vh - 70px)}
+#alt-title{font-family:var(--font-serif);font-size:72px;color:var(--text-dark);line-height:1.1}
+#alt-text{font-size:20px;margin-top:20px;max-width:600px;color:var(--text-dark)}
+
+/* MENU PREVIEW / CAROUSEL */
+.menu-preview-section{padding:100px 0;width:100%;text-align:center;background-color:var(--menu-section-bg);position:relative}
+.menu-preview-heading{font-family:var(--font-serif);font-size:48px;color:var(--text-dark);margin-bottom:10px}
+.menu-preview-subtitle{font-size:20px;color:var(--text-dark);margin-bottom:50px;opacity:.8}
+.drink-carousel-window{overflow:hidden;margin:0 5%;position:relative}
+.carousel-track{display:flex;gap:20px;transition:transform .5s cubic-bezier(.25,.1,.25,1);padding:0 50px;width:fit-content}
+.drink-card{min-width:300px;height:400px;background-color:rgba(255,255,255,.5);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:20px;box-shadow:0 5px 20px rgba(0,0,0,.1);text-decoration:none;color:var(--text-dark);position:relative;overflow:hidden;transition:transform .3s ease,box-shadow .3s ease}
+.card-image-wrapper{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:80%;height:60%;display:flex;justify-content:center;align-items:center}
+.card-image{max-height:100%;max-width:100%;display:block}
+.card-title{font-family:var(--font-serif);font-size:24px;font-weight:700;z-index:5;margin-bottom:5px;text-align:center}
+
+/* arrows */
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);width:50px;height:100px;background-color:rgba(255,255,255,.3);border:none;cursor:pointer;z-index:20;font-size:30px;font-weight:900;color:var(--secondary-pink);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.carousel-arrow:hover{background-color:rgba(255,255,255,.6);color:var(--text-dark)}
+#prev-arrow{left:0;border-radius:0 20px 20px 0}
+#next-arrow{right:0;border-radius:20px 0 0 20px}
+
+/* discover btn */
+.discover-btn{margin-top:50px;padding:12px 30px;border-radius:30px;cursor:pointer;font-size:18px;font-weight:bold;background-color:var(--secondary-pink);color:white;border:none;box-shadow:0 4px 8px rgba(0,0,0,.2);transition:all .3s ease;text-decoration:none;display:inline-block}
+.discover-btn:hover{opacity:.9;transform:translateY(-2px)}
+
+/* Responsive */
+@media (max-width:900px){
+  .navbar{padding:15px 20px}
+  .nav-links,.nav-actions{display:none}
+  .hero-section{flex-direction:column;padding:30px 20px;text-align:center;gap:30px;min-height:auto}
+  .hero-content{max-width:100%;order:2;align-items:center}
+  .hero-title{font-size:15vw}
+  .hero-image-container{max-width:80%;order:1;padding:30px}
+  .hero-buttons{flex-direction:column}
+  .drink-previews{justify-content:center}
+  .menu-preview-heading{font-size:36px}
+  .drink-carousel-window{margin:0;padding:0 10px}
+  .carousel-track{padding:0;justify-content:flex-start;overflow-x:scroll;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+  .drink-card{min-width:80%;margin:0 10px;scroll-snap-align:center}
+  .carousel-arrow{display:none}
+}

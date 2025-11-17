@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Unlock the Aether - Sign In{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock the Aether - Sign In</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Tailwind Configuration -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Purple+Purse&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quando&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': '#00BCD4',     /* Dark Purple for text/accents */
+                        'primary-light': '#00BCD4',    /* Medium Purple */
+                        'bg-dark': '#5D3E7D',          /* Dark mystical background base */
+                        'card-bg': 'rgba(255, 255, 255, 0.95)', /* Nearly opaque white/light card */
+                        'gold-hands': '#FFD700',       /* Gold for hands */
+                        'gold-shadow': '#B8860B',      /* Darker gold outline */
+                        'button-bg': '#00BCD4',        /* Button purple */
+                        'button-hover': '#00BCD4',     /* Darker hover purple */
+                        'input-bg': '#F5F5F5',         /* Light gray input background */
+                        'aether-glow': '#DA70D6',      /* Orchid/Magenta for inner glow */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Georgia', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS Variables for Dynamic Colors (Adjusted to your Tailwind palette) */
+        :root {
+            --primary-pink: #fdf8e8; /* light-bg (Parchment color) */
+            --secondary-pink: #B77F70; /* deep-teal (Accent) */
+            --text-dark: #79554B; /* dark-bg for text */
+            --font-serif: 'Playfair Display', serif;
+            --font-cursive: 'Purple Purse', cursive;
+
+            /* Color for the new Menu Preview section background */
+            --menu-section-bg: #F4DCE3;
+        }
+
+        /* --- GLOBAL & BODY STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body {
+            background-color: #F7F2F9; /* Existing body color */
+            font-family: 'Quando', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: rgba(192, 219, 245, 0.826);
+            color: var(--text-dark);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-family: var(--font-cursive);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 24px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            background-color: transparent;
+            border-radius: 50%;
+            /* Styling the SVG icon color to match the theme */
+            color: var(--secondary-pink);
+            stroke: var(--secondary-pink);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-dark);
+            padding: 5px 10px;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .nav-item.current {
+            text-decoration: underline;
+            text-decoration-color: var(--secondary-pink);
+            text-underline-offset: 8px;
+            font-weight: bold;
+        }
+
+        .contact-button {
+            border: 1px solid var(--secondary-pink);
+            border-radius: 20px;
+            padding: 5px 15px;
+            background-color: transparent;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-icon {
+            font-size: 24px;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .register-btn {
+            background-color: transparent;
+            border: 1px solid var(--secondary-pink);
+            color: var(--text-dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-cursive);
+            transition: all 0.3s ease;
+        }
+        .register-btn:hover {
+            background-color: var(--secondary-pink);
+            color: var(--primary-pink);
+        }
+
+        .dropdown-arrow-link {
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .dropdown-arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-dark);
+            transform: translateY(2px);
+        }
+        body{
+            background-image: url(https://mir-s3-cdn-cf.behance.net/project_modules/1400/588a44195922117.66168b374ece8.gif);
+            background-repeat: no-repeat;
+            background-size: cover;
+            ;
+        }
+        /* Sign-In Title Style - Matching the provided image's font and glow */
+        .section-title {
+            font-family: 'Purple Purse';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 40px;
+            line-height: 38px;
+            text-align: center;
+
+            color: #217d89;
+            text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Input field styling */
+        .magic-input {
+            background-color: #d4eef1db; /* Light gray input background */
+            border: 1px solid #00BCD4;
+            color: #00BCD4;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 0 5px rgba(21, 150, 179, 0.5); /* Soft pink glow */
+        }
+        .magic-input:focus {
+            border-color: #00BCD4;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(55, 98, 158, 0.6);
+        }
+
+        .magic-card {
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 1.5rem;
+            border: 2px solid #00BCD4; /* Pink border */
+            box-shadow: 0 0 20px rgba(59, 133, 176, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        /* Positioning the hands container to cup the card */
+        .hands-container {
+            position: absolute;
+            top: 50%;
+            /* Adjust translate Y to lift the hands up to cup the bottom of the card */
+            transform: translate(-50%, -20%);
+            left: 50%;
+            width: 100%;
+            max-width: 500px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .golden-hands {
+            fill: #FFD700;
+            stroke: #B8860B;
+            stroke-width: 2;
+            opacity: 0.9;
+        }
+
+        /* Custom style for the Sign In/Register tabs */
+        .tab-button {
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header Strip -->
+    <div class="header-strip w-full"></div>
+
+    <!-- 2. Main Sign-In Content Area -->
+    <main class="relative flex flex-grow items-center justify-center p-8 w-full overflow-hidden">
+
+                <!-- Rings/Glow -->
+                <circle cx="160" cy="200" r="5" fill="#FFFFFF" opacity="0.9" />
+                <circle cx="240" cy="200" r="5" fill="#FFFFFF" opacity="0.9" />
+            </svg>
+
+
+        <!-- Sign In Card (z-20 to be on top of hands) -->
+        <div class="magic-card sm:p-10 z-20">
+
+            <!-- Tab Navigation -->
+            <div class="flex justify-center mb-8 absolute top-[-25px] left-1/2 transform -translate-x-1/2 bg-white/50 backdrop-blur-sm rounded-full p-1 border border-primary-light shadow-lg">
+                <a href="{% url 'login' %}" class="tab-button bg-primary-dark text-white shadow-inner shadow-primary-light">Sign In</a>
+                <a href="{% url 'signup' %}" class="tab-button text-primary-dark hover:bg-primary-light hover:text-white transition-colors">Register</a>
+            </div>
+
+            <div class="text-center pt-8">
+                <!-- Title: Unlock the Magical Aether -->
+                <h2 class="section-title mb-8">Unlock the Magical Aether</h2>
+
+                <form method="POST" action="{% url 'login' %}" class="space-y-6">
+                 {% csrf_token %}
+
+                    <label class="block">
+                        <span class="font-medium text-primary-dark block mb-1 text-left">Username</span>
+                        <input type="text" name="username" id="username" class="magic-input" required placeholder="Enter your celestial name">
+                    </label>
+
+                    <label class="block">
+                        <span class="font-medium text-primary-dark block mb-1 text-left">Password</span>
+                        <input type="password" name="password" id="password" class="magic-input" required placeholder="Enter your secret key">
+                    </label>
+
+                    <div class="pt-6">
+                        <button type="submit" class="w-full bg-button-bg text-white py-3 rounded-xl font-semibold hover:bg-button-hover transition-colors shadow-xl text-lg tracking-wider">
+                            Sign In
+                        </button>
+                    </div>
+
+                    <div class="text-sm text-center pt-2 text-primary-dark">
+                        Don't have an account?
+                        <a href="{% url 'signup' %}" class="font-bold underline text-button-bg hover:text-button-hover transition-colors">Sign Up</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Ensure Lucide icons are rendered
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
+{% endblock %}

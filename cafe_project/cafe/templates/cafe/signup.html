@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Engrave Your Name in the Aether - Register{% endblock %}
+{% block content %}
+<style>
+    /* --- PIXIE DUST / STARFIELD BACKGROUND EFFECT --- */
+    @keyframes starry-drift {
+        0% { background-position: 0 0; }
+        100% { background-position: 500px 500px; }
+    }
+    /* CSS Variables for Dynamic Colors (Adjusted to your Tailwind palette) */
+    :root {
+        --primary-pink: #fdf8e8; /* light-bg (Parchment color) */
+        --secondary-pink: #B77F70; /* deep-teal (Accent) */
+        --text-dark: #79554B; /* dark-bg for text */
+        --font-serif: 'Playfair Display', serif;
+        --font-cursive: 'Purple Purse', cursive;
+
+        /* Color for the new Menu Preview section background */
+        --menu-section-bg: #F4DCE3;
+    }
+
+    /* --- GLOBAL & BODY STYLES --- */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    body {
+        background-color: #F7F2F9; /* Existing body color */
+        font-family: 'Quando', sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* --- NAVBAR --- */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 50px;
+        background-color: rgba(81, 5, 92, 0.826);
+        color: var(--text-dark);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-family: var(--font-cursive);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-dark);
+        font-size: 24px;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+        background-color: transparent;
+        border-radius: 50%;
+        /* Styling the SVG icon color to match the theme */
+        color: var(--secondary-pink);
+        stroke: var(--secondary-pink);
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 30px;
+    }
+
+    .nav-item {
+        text-decoration: none;
+        color: var(--text-dark);
+        padding: 5px 10px;
+        font-size: 18px;
+        position: relative;
+    }
+
+    .nav-item.current {
+        text-decoration: underline;
+        text-decoration-color: var(--secondary-pink);
+        text-underline-offset: 8px;
+        font-weight: bold;
+    }
+
+    .contact-button {
+        border: 1px solid var(--secondary-pink);
+        border-radius: 20px;
+        padding: 5px 15px;
+        background-color: transparent;
+        font-size: 18px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .cart-icon {
+        font-size: 24px;
+        text-decoration: none;
+        color: var(--text-dark);
+    }
+
+    .register-btn {
+        background-color: transparent;
+        border: 1px solid var(--secondary-pink);
+        color: var(--text-dark);
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: var(--font-cursive);
+        transition: all 0.3s ease;
+    }
+    .register-btn:hover {
+        background-color: var(--secondary-pink);
+        color: var(--primary-pink);
+    }
+
+    .dropdown-arrow-link {
+        text-decoration: none;
+        color: var(--text-dark);
+    }
+
+    .dropdown-arrow {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid var(--text-dark);
+        transform: translateY(2px);
+    }
+    body{
+        background-image: url(https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/7a2d3816-66fc-444a-b22a-81f3a67838af/deo182h-4d8f64bf-0b0c-4f9b-8d13-a57c8d144ce1.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi83YTJkMzgxNi02NmZjLTQ0NGEtYjIyYS04MWYzYTY3ODM4YWYvZGVvMTgyaC00ZDhmNjRiZi0wYjBjLTRmOWItOGQxMy1hNTdjOGQxNDRjZTEuZ2lmIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.94mC5eiZn14_IXCea2gQB6sHJZqEYzt2RWjDDL7mn2g);
+        background-repeat: no-repeat;
+        background-size: cover;
+        ;
+    }
+    /* Sign-In Title Style - Matching the provided image's font and glow */
+    .section-title {
+        font-family: 'Purple Purse';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 40px;
+        line-height: 38px;
+        text-align: center;
+
+        color: #652e8a;
+        text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Input field styling */
+    .magic-input {
+        background-color: #F5F5F5; /* Light gray input background */
+        border: 1px solid #DA70D6;
+        color: #4A2066;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        width: 100%;
+        transition: all 0.3s;
+        box-shadow: 0 0 5px rgba(218, 112, 214, 0.5); /* Soft pink glow */
+    }
+    .magic-input:focus {
+        border-color: #9B59B6;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.6);
+    }
+
+    .magic-card {
+        position: relative;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 1.5rem;
+        border: 2px solid #DA70D6; /* Pink border */
+        box-shadow: 0 0 20px rgba(218, 112, 214, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+    }
+
+    /* Positioning the hands container to cup the card */
+    .hands-container {
+        position: absolute;
+        top: 50%;
+        /* Adjust translate Y to lift the hands up to cup the bottom of the card */
+        transform: translate(-50%, -20%);
+        left: 50%;
+        width: 100%;
+        max-width: 500px;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .golden-hands {
+        fill: #FFD700;
+        stroke: #B8860B;
+        stroke-width: 2;
+        opacity: 0.9;
+    }
+
+    /* Custom style for the Sign In/Register tabs */
+    .tab-button {
+        padding: 0.5rem 1.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+</style>
+
+<!-- Load Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Load Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Custom Tailwind Configuration -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Purple+Purse&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quando&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'primary-dark': '#4A2066',     /* Dark Purple for text/accents */
+                    'primary-light': '#7D3C98',    /* Medium Purple */
+                    'bg-dark': '#5D3E7D',          /* Dark mystical background base */
+                    'card-bg': 'rgba(255, 255, 255, 0.95)', /* Nearly opaque white/light card */
+                    'gold-hands': '#FFD700',       /* Gold for hands */
+                    'gold-shadow': '#B8860B',      /* Darker gold outline */
+                    'button-bg': '#9B59B6',        /* Button purple */
+                    'button-hover': '#7D3C98',     /* Darker hover purple */
+                    'input-bg': '#F5F5F5',         /* Light gray input background */
+                    'aether-glow': '#DA70D6',      /* Orchid/Magenta for inner glow */
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    display: ['Georgia', 'serif'],
+                },
+            }
+        }
+    }
+</script>
+
+<!-- 2. Main Registration Content Area -->
+<main class="relative flex flex-grow items-center justify-center p-8 w-full overflow-hidden">
+
+    <!-- Rings/Glow -->
+    <circle cx="160" cy="200" r="5" fill="#FFFFFF" opacity="0.9" />
+    <circle cx="240" cy="200" r="5" fill="#FFFFFF" opacity="0.9" />
+
+    <!-- Butterflies -->
+    <div class="butterfly-left absolute" style="top: 15%; left: 0%; transform: rotate(-15deg);">
+        <i data-lucide="sparkles" class="w-8 h-8 text-yellow-300 drop-shadow-lg animate-pulse" style="color: #FFD700;"></i>
+        <img src="{% static 'signin-img/witch hands.png' %}" alt="Butterfly" class="w-10 h-10 transform -translate-x-1/2">
+    </div>
+    <div class="butterfly-right absolute" style="top: 15%; right: 0%; transform: rotate(15deg);">
+        <i data-lucide="sparkles" class="w-8 h-8 text-yellow-300 drop-shadow-lg animate-pulse" style="color: #FFD700;"></i>
+        <img src="{% static 'signin-img/witch hands.png' %}" alt="Butterfly" class="w-10 h-10 transform translate-x-1/2">
+    </div>
+
+    <!-- Registration Card (z-20 to be on top of hands) -->
+    <div class="magic-card sm:p-10 z-20">
+
+        <!-- Tab Navigation -->
+        <div class="flex justify-center mb-8 absolute top-[-25px] left-1/2 transform -translate-x-1/2 bg-white/50 backdrop-blur-sm rounded-full p-1 border border-primary-light shadow-lg">
+            <a href="{% url 'login' %}" class="tab-button text-primary-dark hover:bg-primary-light hover:text-white transition-colors">Log In</a>
+            <a href="{% url 'signup' %}" class="tab-button bg-primary-dark text-white shadow-inner shadow-primary-light">Register</a>
+        </div>
+
+        <div class="text-center pt-8">
+            <!-- Title: Engrave Your Name in the Aether -->
+            <h2 class="section-title mb-8">Engrave Your Name in the Aether</h2>
+
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="text-red-600 text-sm font-medium">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form action="{% url 'signup' %}" method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <label class="block">
+                    <span class="font-medium text-primary-dark block mb-1 text-left">Username</span>
+                    <input type="text" name="username" class="magic-input" required placeholder="Choose your celestial name">
+                </label>
+
+                <label class="block">
+                    <span class="font-medium text-primary-dark block mb-1 text-left">Contact Number</span>
+                    <input type="tel" name="contact" class="magic-input" required placeholder="Your earthly connection">
+                </label>
+
+                <label class="block">
+                    <span class="font-medium text-primary-dark block mb-1 text-left">E-mail</span>
+                    <input type="email" name="email" class="magic-input" required placeholder="Your magical email">
+                </label>
+
+                <label class="block">
+                    <span class="font-medium text-primary-dark block mb-1 text-left">Password</span>
+                    <input type="password" name="password" class="magic-input" required placeholder="Create a secret key">
+                </label>
+
+                <label class="block">
+                    <span class="font-medium text-primary-dark block mb-1 text-left">Confirm Password</span>
+                    <input type="password" name="confirm_password" class="magic-input" required placeholder="Confirm your secret key">
+                </label>
+
+                <div class="pt-6">
+                    <button type="submit" class="w-full bg-button-bg text-white py-3 rounded-xl font-semibold hover:bg-button-hover transition-colors shadow-xl text-lg tracking-wider">
+                        Sign Up
+                    </button>
+                </div>
+
+                <div class="text-sm text-center pt-2 text-primary-dark">
+                    Already enchanted?
+                    <a href="{% url 'login' %}" class="font-bold underline text-button-bg hover:text-button-hover transition-colors">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Ensure Lucide icons are rendered
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+{% endblock %}

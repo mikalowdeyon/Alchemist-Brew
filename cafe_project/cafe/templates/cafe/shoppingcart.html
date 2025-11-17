@@ -1,0 +1,730 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Alchemist's Stock - Shopping Cart</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Tailwind Configuration -->
+    <link rel="Icon" href="img/alchemist-icon.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Purple+Purse&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quando&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sage': '#D3E7D3',        /* Light Green/Sage for Main Background */
+                        'dark-sage': '#184E1A',   /* Darker Green/Sage for Borders/Text */
+                        'light-sage-bg': '#F0F8F0', /* Off-White/Lightest Background */
+                        'text-dark': '#184E1A',   /* Dark Text Color */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Georgia', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS Variables for Dynamic Colors (Adjusted to your Tailwind palette) */
+        :root {
+            --primary-pink: #fdf8e8; /* light-bg (Parchment color) */
+            --secondary-pink: #B77F70; /* deep-teal (Accent) */
+            --text-dark: #79554B; /* dark-bg for text */
+            --font-serif: 'Playfair Display', serif;
+            --font-cursive: 'Purple Purse', cursive;
+            
+            /* Color for the new Menu Preview section background */
+            --menu-section-bg: #F4DCE3;
+        }
+
+        /* --- GLOBAL & BODY STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body {
+            background-color: #cbecc7; /* Existing body color */
+            font-family: 'Quando', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: rgba(209, 235, 200, 0.863);
+            color: #4caf8e;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-family: var(--font-cursive);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 24px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            background-color: transparent;
+            border-radius: 50%;
+            /* Styling the SVG icon color to match the theme */
+            color: var(--secondary-pink); 
+            stroke: var(--secondary-pink);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-dark);
+            padding: 5px 10px;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .nav-item.current {
+            text-decoration: underline;
+            text-decoration-color: var(--secondary-pink);
+            text-underline-offset: 8px;
+            font-weight: bold;
+        }
+        
+        .contact-button {
+            border: 1px solid var(--secondary-pink);
+            border-radius: 20px;
+            padding: 5px 15px;
+            background-color: transparent;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-icon {
+            font-size: 24px;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .register-btn {
+            background-color: transparent;
+            border: 1px solid var(--secondary-pink);
+            color: var(--text-dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-cursive);
+            transition: all 0.3s ease;
+        }
+        .register-btn:hover {
+            background-color: var(--secondary-pink);
+            color: var(--primary-pink);
+        }
+
+        .dropdown-arrow-link {
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+        
+        .dropdown-arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-dark);
+            transform: translateY(2px);
+        }
+        
+
+        /* Styling for the main "The Alchemist's Stock" title */
+        .apothecary-title {
+            font-family: 'Purple Purse';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 80px;
+            line-height: 100px;
+            text-align: center;
+
+            color: rgba(10, 99, 13, 0.838);
+            text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+        }
+        /* Table header styling */
+        .table-header {
+            background-color: #9FB89F;
+            color: white;
+        }
+
+        /* Summary box styling */
+        .summary-box {
+            border: 2px solid #9FB89F;
+            background-color: #F0F8F0;
+        }
+
+        /* Utility for centering icons */
+        .icon-center {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Custom scrollbar for cart area */
+        #cart-items-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #cart-items-container::-webkit-scrollbar-thumb {
+            background-color: #B1C9B1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- GLOBAL SETUP ---
+        setLogLevel('Debug');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        let app, db, auth, userId = null;
+
+        // Initialize and Authenticate
+        async function initializeFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                await new Promise(resolve => {
+                    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            userId = user.uid;
+                        } else {
+                            try {
+                                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                                    await signInWithCustomToken(auth, __initial_auth_token);
+                                    userId = auth.currentUser.uid;
+                                } else {
+                                    const anonUser = await signInAnonymously(auth);
+                                    userId = anonUser.user.uid;
+                                }
+                            } catch (error) {
+                                console.error("Authentication failed:", error);
+                                // Fallback to a random ID if Firebase Auth fails completely
+                                userId = crypto.randomUUID();
+                            }
+                        }
+                        
+                        // User ID is now known (either authenticated or anonymous)
+                        document.getElementById('user-id-display').textContent = `User ID: ${userId}`;
+                        startRealtimeListener();
+                        unsubscribe(); 
+                        resolve();
+                    });
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                document.getElementById('status-message').textContent = 'Error: Firebase failed to load. Check console.';
+            }
+        }
+
+        // --- FIRESTORE OPERATIONS ---
+
+        const CART_COLLECTION = 'carts'; // Storing public data for this specific app
+        const CART_DOCUMENT_ID = 'userCart';
+
+        /**
+         * Gets the Firestore document reference for the current user's cart.
+         */
+        function getCartDocRef() {
+            if (!db || !userId) return null;
+            // Public data structure: /artifacts/{appId}/public/data/{your_collection_name}/{documentId}
+            return doc(db, `artifacts/${appId}/public/data/${CART_COLLECTION}/${userId}_${CART_DOCUMENT_ID}`);
+        }
+
+        /**
+         * Saves the current cart state to Firestore.
+         */
+        window.saveCartState = async function(newCart) {
+            const cartRef = getCartDocRef();
+            if (!cartRef) return;
+
+            try {
+                // Ensure the quantity field is numeric for items before saving
+                const safeCart = {
+                    menuItems: newCart.menuItems.map(item => ({
+                        ...item,
+                        quantity: Number(item.quantity)
+                    })),
+                    reservation: newCart.reservation ? {
+                        ...newCart.reservation,
+                        groupSize: Number(newCart.reservation.groupSize)
+                    } : null
+                };
+
+                await setDoc(cartRef, safeCart);
+                console.log("Cart state saved successfully.");
+            } catch (e) {
+                console.error("Error writing document: ", e);
+            }
+        }
+
+        // --- REALTIME LISTENER ---
+
+        let currentCart = { menuItems: [], reservation: null };
+
+        /**
+         * Starts the realtime listener for the user's cart data.
+         */
+        function startRealtimeListener() {
+            const cartRef = getCartDocRef();
+            if (!cartRef) return;
+
+            onSnapshot(cartRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    currentCart = {
+                        menuItems: data.menuItems || [],
+                        reservation: data.reservation || null
+                    };
+                    console.log("Cart updated from Firestore:", currentCart);
+                } else {
+                    // Initialize or reset if no data exists
+                    currentCart = { menuItems: [], reservation: null };
+                    console.log("No cart data found. Initializing empty cart.");
+                }
+                updateUI();
+            }, (error) => {
+                console.error("Error listening to cart changes:", error);
+                document.getElementById('status-message').textContent = 'Error: Failed to fetch cart data.';
+            });
+        }
+
+        // --- UI RENDERING & LOGIC ---
+
+        const TAX_RATE = 0.12; // 12% tax
+
+        /**
+         * Recalculates all totals and returns the summary object.
+         */
+        function calculateSummary() {
+            let subTotal = currentCart.menuItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // Reservation is fixed cost or a placeholder for now
+            let reservationFee = currentCart.reservation ? 500 : 0; 
+            
+            subTotal += reservationFee;
+
+            // Apply a simple 10% coupon if the coupon input matches 'ALCHEMIST10'
+            const couponCode = document.getElementById('coupon-input').value.trim().toUpperCase();
+            let couponDiscount = 0;
+            const couponApplied = (couponCode === 'ALCHEMIST10' && subTotal > 0);
+            
+            if (couponApplied) {
+                couponDiscount = subTotal * 0.10;
+            }
+
+            const taxableBase = subTotal - couponDiscount;
+            const taxAmount = taxableBase * TAX_RATE;
+            const total = taxableBase + taxAmount;
+
+            return {
+                itemsSubTotal: subTotal - reservationFee,
+                reservationFee,
+                subTotal: subTotal,
+                tax: taxAmount,
+                couponDiscount: couponDiscount,
+                total: total,
+                couponApplied
+            };
+        }
+
+        /**
+         * Renders all data to the UI.
+         */
+        function updateUI() {
+            renderCartItems();
+            renderReservationSummary();
+            renderOrderSummary();
+        }
+
+        /**
+         * Renders the menu items in the table.
+         */
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+
+            if (currentCart.menuItems.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-gray-500 italic">Your cauldron is empty. Add some magical brews from the Menu!</div>`;
+                return;
+            }
+
+            currentCart.menuItems.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'grid grid-cols-4 gap-4 py-3 border-b border-sage items-center text-sm font-medium';
+                itemElement.innerHTML = `
+                    <div class="col-span-1 flex items-center space-x-2">
+                        <span class="text-text-dark">${item.name}</span>
+                    </div>
+                    <div class="col-span-1 text-center">₱${item.price.toFixed(2)}</div>
+                    <div class="col-span-1 flex justify-center space-x-2">
+                        <button onclick="updateQuantity(${index}, -1)" class="text-text-dark hover:text-dark-sage transition-colors p-1 rounded-full icon-center" aria-label="Decrease quantity">
+                            <i data-lucide="minus" class="w-4 h-4"></i>
+                        </button>
+                        <span class="w-8 text-center">${item.quantity}</span>
+                        <button onclick="updateQuantity(${index}, 1)" class="text-text-dark hover:text-dark-sage transition-colors p-1 rounded-full icon-center" aria-label="Increase quantity">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="col-span-1 flex justify-between items-center pr-2">
+                        <span class="font-bold text-center">₱${(item.price * item.quantity).toFixed(2)}</span>
+                        <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-700 p-1 rounded-full icon-center" aria-label="Remove item">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(itemElement);
+            });
+            lucide.createIcons(); // Re-render icons after adding new elements
+        }
+
+        /**
+         * Renders the reservation details.
+         */
+        function renderReservationSummary() {
+            const container = document.getElementById('reservation-summary-container');
+            container.innerHTML = '';
+            
+            if (currentCart.reservation) {
+                const res = currentCart.reservation;
+                const reservationElement = document.createElement('div');
+                reservationElement.className = 'p-4 bg-dark-sage/10 rounded-lg border-l-4 border-dark-sage mb-4';
+                reservationElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="font-bold text-dark-sage flex items-center">
+                            <i data-lucide="book-open-check" class="w-5 h-5 mr-2"></i> Study Room Reservation 
+                        </p>
+                        <button onclick="removeReservation()" class="text-red-500 hover:text-red-700 text-sm font-semibold" aria-label="Cancel Reservation">
+                            Cancel
+                        </button>
+                    </div>
+                    <p class="text-xs">
+                        <strong>Date:</strong> ${res.date} | 
+                        <strong>Time:</strong> ${res.time} | 
+                        <strong>Group:</strong> ${res.groupSize} people
+                    </p>
+                    <p class="text-xs mt-1">
+                        <strong>Fee:</strong> ₱500.00 <span class="text-gray-500 italic">(Placeholder fee for reservation)</span>
+                    </p>
+                `;
+                container.appendChild(reservationElement);
+                lucide.createIcons();
+            } else {
+                container.innerHTML = `<div class="text-center text-sm text-gray-400 p-2 border-b border-sage">No Study Room reserved.</div>`;
+            }
+        }
+
+        /**
+         * Renders the order summary totals.
+         */
+        function renderOrderSummary() {
+            const summary = calculateSummary();
+            document.getElementById('items-subtotal').textContent = `₱${summary.itemsSubTotal.toFixed(2)}`;
+            document.getElementById('reservation-fee').textContent = `₱${summary.reservationFee.toFixed(2)}`;
+            document.getElementById('total-subtotal').textContent = `₱${summary.subTotal.toFixed(2)}`;
+            document.getElementById('tax-amount').textContent = `₱${summary.tax.toFixed(2)}`;
+            document.getElementById('coupon-discount-amount').textContent = `- ₱${summary.couponDiscount.toFixed(2)}`;
+            document.getElementById('final-total').textContent = `₱${summary.total.toFixed(2)}`;
+
+            const couponMsg = document.getElementById('coupon-message');
+            if (summary.couponApplied) {
+                couponMsg.textContent = "Coupon Applied!";
+                couponMsg.className = "text-xs text-green-600 font-medium";
+            } else {
+                couponMsg.textContent = "";
+            }
+        }
+
+        // --- USER ACTIONS ---
+
+        /**
+         * Updates the quantity of a menu item and saves.
+         */
+        window.updateQuantity = function(index, delta) {
+            const item = currentCart.menuItems[index];
+            const newQuantity = item.quantity + delta;
+            
+            if (newQuantity <= 0) {
+                removeItem(index);
+                return;
+            }
+
+            // Update in memory
+            currentCart.menuItems[index].quantity = newQuantity;
+
+            // Save to Firestore
+            saveCartState(currentCart);
+        }
+
+        /**
+         * Removes a menu item and saves.
+         */
+        window.removeItem = function(index) {
+            if (confirm("Are you sure you want to remove this item?")) {
+                currentCart.menuItems.splice(index, 1);
+                saveCartState(currentCart);
+            }
+        }
+
+        /**
+         * Removes the reservation and saves.
+         */
+        window.removeReservation = function() {
+             if (confirm("Are you sure you want to cancel your Study Room reservation?")) {
+                currentCart.reservation = null;
+                saveCartState(currentCart);
+            }
+        }
+
+        /**
+         * Clears the entire cart and reservation.
+         */
+        window.clearCart = function() {
+            if (confirm("Are you sure you want to clear your entire Shopping Cart?")) {
+                currentCart = { menuItems: [], reservation: null };
+                document.getElementById('coupon-input').value = '';
+                saveCartState(currentCart);
+            }
+        }
+
+        /**
+         * Simulates adding items/reservation for demo purposes. 
+         * In a real app, this would happen on the Menu/Study Room pages.
+         */
+        window.simulateAddData = function() {
+            const demoItem1 = { id: 'Midas', name: 'The Midas Touch', price: 180.00, quantity: 2 };
+            const demoItem2 = { id: 'Elixir', name: 'Youth Elixir (Non-Coffee)', price: 220.00, quantity: 1 };
+            const demoReservation = { 
+                date: 'Sat, Nov. 15, 2025', 
+                time: '3:00 pm - 6:00 pm (3 Hours)', 
+                groupSize: 5,
+                details: { firstName: 'Hermes', lastName: 'Trismegistus', email: 'hermes@alchemy.com' }
+            };
+
+            // Ensure we don't duplicate items if they exist
+            const existingIds = new Set(currentCart.menuItems.map(i => i.id));
+            if (!existingIds.has(demoItem1.id)) {
+                currentCart.menuItems.push(demoItem1);
+            }
+            if (!existingIds.has(demoItem2.id)) {
+                currentCart.menuItems.push(demoItem2);
+            }
+            
+            // Set the reservation (overwrites any existing one)
+            currentCart.reservation = demoReservation;
+            
+            saveCartState(currentCart);
+        }
+
+        // --- COUPON LOGIC ---
+        window.applyCoupon = function() {
+            // Trigger a UI refresh to recalculate totals
+            updateUI();
+            const summary = calculateSummary();
+            let msg = '';
+            if (summary.couponApplied) {
+                msg = "The Coupon was successfully accepted by the stock keeper!";
+            } else if (document.getElementById('coupon-input').value.trim() === '') {
+                msg = "Please enter a Coupon Code to apply a discount.";
+            } else {
+                msg = "The alchemical formula (Coupon Code) is incorrect or expired.";
+            }
+            // Use a custom message box instead of alert() in a real application
+            // For this environment, we use a simple alert/confirm as a fallback
+            alert(msg);
+        }
+
+        window.proceedToCheckout = function() {
+            if (currentCart.menuItems.length === 0 && !currentCart.reservation) {
+                alert("Your cart is empty! Add some items before checking out.");
+                return;
+            }
+            alert("Proceeding to Checkout! \n\n(This is a demo. All items, reservation, and total will be passed to a final payment page.)");
+            console.log("Final Cart State for Checkout:", currentCart, "Summary:", calculateSummary());
+        }
+
+        // Initialize on load
+        window.onload = initializeFirebase;
+    </script>
+    <!-- Header Strip -->
+    <div class="header-strip"></div>
+
+    <main class="container mx-auto px-4 py-12 bg-light-sage-bg shadow-xl rounded-xl mt-8 mb-8">
+        
+        <!-- Status and User ID -->
+        <div class="text-xs text-center mb-4 text-gray-500 flex justify-between">
+            <span id="status-message">Initializing...</span>
+            <span id="user-id-display" class="font-mono"></span>
+            <button onclick="simulateAddData()" class="text-dark-sage hover:underline">
+                [DEMO: Add Sample Data]
+            </button>
+        </div>
+
+        <!-- Main Title -->
+        <div class="text-center mb-12">
+            <h2 class="apothecary-title inline-block">The Alchemist's Stock</h2>
+        </div>
+
+        <!-- Two-Column Layout for Cart and Summary -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- LEFT COLUMN: Cart Items & Reservation -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Reservation Summary Area (From Study Room) -->
+                <div id="reservation-container" class="border border-dark-sage/50 p-4 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3 text-text-dark border-b border-dark-sage/30 pb-2">
+                        Study Room Reservation
+                    </h3>
+                    <div id="reservation-summary-container" class="min-h-[70px]">
+                        <!-- Reservation details will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Menu Item Table -->
+                <div class="border border-dark-sage/50 rounded-lg overflow-hidden shadow-lg">
+                    <!-- Table Header -->
+                    <div class="grid grid-cols-4 table-header font-bold text-sm uppercase tracking-wider py-3 px-2">
+                        <div class="col-span-1">Product</div>
+                        <div class="col-span-1 text-center">Price</div>
+                        <div class="col-span-1 text-center">Quantity</div>
+                        <div class="col-span-1 text-right pr-2">Subtotal</div>
+                    </div>
+                    
+                    <!-- Cart Items Body -->
+                    <div id="cart-items-container" class="max-h-96 overflow-y-auto bg-white p-2">
+                        <!-- Cart items will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Cart Footer Actions -->
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 mt-4">
+                    <!-- Coupon Input -->
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <input type="text" id="coupon-input" placeholder="Coupon Code" class="px-4 py-2 border border-dark-sage rounded-xl focus:ring-dark-sage focus:border-dark-sage w-full sm:w-40 bg-light-sage-bg">
+                        <button onclick="applyCoupon()" class="px-4 py-2 bg-dark-sage text-white font-semibold rounded-xl hover:bg-text-dark transition-colors shadow-md">
+                            Apply Coupon
+                        </button>
+                    </div>
+                    <!-- Clear Cart -->
+                    <button onclick="clearCart()" class="text-red-500 hover:text-red-700 font-medium transition-colors">
+                        Clear Shopping Cart
+                    </button>
+                </div>
+            </div>
+            
+            <!-- RIGHT COLUMN: Order Summary -->
+            <div class="lg:col-span-1 p-6 summary-box rounded-lg shadow-xl h-fit">
+                <h3 class="text-2xl font-bold text-text-dark mb-4 border-b border-dark-sage/50 pb-2">Order Summary</h3>
+
+                <div class="space-y-3 text-sm">
+                    <!-- Items Subtotal -->
+                    <div class="flex justify-between">
+                        <span class="font-medium">Menu Items Subtotal:</span>
+                        <span id="items-subtotal">₱0.00</span>
+                    </div>
+
+                    <!-- Reservation Fee -->
+                    <div class="flex justify-between">
+                        <span class="font-medium">Reservation Fee:</span>
+                        <span id="reservation-fee">₱0.00</span>
+                    </div>
+
+                    <!-- Total Subtotal (Before Tax/Discount) -->
+                    <div class="flex justify-between pt-2 border-t border-dark-sage/30 font-bold">
+                        <span>Subtotal:</span>
+                        <span id="total-subtotal">₱0.00</span>
+                    </div>
+
+                    <!-- Tax -->
+                    <div class="flex justify-between">
+                        <span class="font-medium">Tax (12%):</span>
+                        <span id="tax-amount">₱0.00</span>
+                    </div>
+                    
+                    <!-- Coupon Discount -->
+                    <div class="flex justify-between text-red-600">
+                        <span class="font-medium">Coupon Discount:</span>
+                        <span id="coupon-discount-amount">- ₱0.00</span>
+                    </div>
+                    <div id="coupon-message" class="text-right text-xs h-4"></div>
+
+                    <!-- FINAL TOTAL -->
+                    <div class="flex justify-between pt-4 border-t-2 border-dark-sage font-extrabold text-lg">
+                        <span>Total:</span>
+                        <span id="final-total">₱0.00</span>
+                    </div>
+                </div>
+
+                <button onclick="proceedToCheckout()" class="mt-8 w-full px-6 py-3 bg-dark-sage text-white font-bold rounded-xl hover:bg-text-dark transition-colors shadow-lg">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize lucide icons on load (called within initializeFirebase now, but keep for fallback)
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Celestial Menu{% endblock %}
+{% block content %}
+<style>
+    :root {
+        --primary-pink: #E0F7FA;
+        --secondary-pink: #00BCD4;
+        --text-dark: #3f2f45;
+        --menu-bg-color: #e6f3f8;
+        --table-bg-color: #f0f8ff;
+        --table-border-color: #d1e2f0;
+        --dark-text-color: #2c3e50;
+        --price-color: #3f2f45;
+    }
+
+    body {
+        font-family: 'Quando', sans-serif;
+        background-color: var(--menu-bg-color);
+    }
+
+    .celestial-title {
+        font-family: 'Purple Purse', cursive;
+        font-size: 80px;
+        text-align: center;
+        color: var(--secondary-pink);
+        text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.7);
+        margin-bottom: 40px;
+    }
+
+    .category-title {
+        font-family: 'Purple Purse', cursive;
+        font-size: 50px;
+        text-align: center;
+        color: var(--secondary-pink);
+        text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.7);
+        margin: 40px 0 20px 0;
+    }
+
+    .menu-table {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        border-collapse: collapse;
+        background-color: var(--table-bg-color);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .menu-table th, .menu-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--table-border-color);
+    }
+
+    .menu-table th {
+        background-color: var(--secondary-pink);
+        color: white;
+        font-weight: 700;
+    }
+
+    .menu-table tr:hover {
+        background-color: #e0f2f1;
+    }
+
+    .product-price {
+        font-weight: 900;
+        color: var(--price-color);
+    }
+
+    .best-seller {
+        color: #ff9800;
+        font-weight: bold;
+    }
+
+    .available {
+        color: #4caf50;
+    }
+
+    .unavailable {
+        color: #f44336;
+    }
+
+    .action-btn {
+        background-color: var(--secondary-pink);
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-right: 5px;
+    }
+
+    .action-btn:hover {
+        background-color: #0097a7;
+        transform: translateY(-2px);
+    }
+
+    .quick-add-btn {
+        background-color: #4caf50;
+    }
+
+    .quick-add-btn:hover {
+        background-color: #45a049;
+    }
+
+    .edit-btn {
+        background-color: #ff9800;
+    }
+
+    .edit-btn:hover {
+        background-color: #f57c00;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+    }
+
+    .delete-btn:hover {
+        background-color: #d32f2f;
+    }
+
+    .no-items {
+        text-align: center;
+        padding: 50px;
+        color: #5d6d7e;
+        font-style: italic;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 15px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .add-item-btn {
+        background-color: var(--secondary-pink);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .add-item-btn:hover {
+        background-color: #0097a7;
+        transform: translateY(-2px);
+    }
+
+    .category-nav-btn {
+        background-color: var(--secondary-pink);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 10px;
+        transition: all 0.3s ease;
+    }
+
+    .category-nav-btn:hover {
+        background-color: #0097a7;
+        transform: translateY(-2px);
+    }
+
+    /* Go to Top Button */
+    #goToTopBtn {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 99;
+        border: none;
+        outline: none;
+        background-color: var(--secondary-pink);
+        color: white;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 50%;
+        font-size: 18px;
+        transition: all 0.3s ease;
+    }
+
+    #goToTopBtn:hover {
+        background-color: #0097a7;
+        transform: translateY(-2px);
+    }
+
+
+</style>
+
+<main class="container mx-auto px-4 py-8">
+    <div class="text-center">
+        <h1 class="celestial-title">Celestial Menu</h1>
+    </div>
+
+    <!-- Category Navigation Buttons -->
+    <div class="category-nav" style="text-align: center; margin-bottom: 30px;">
+        <button class="category-nav-btn" onclick="scrollToCategory('coffees')">Coffees and Pastries</button>
+        <button class="category-nav-btn" onclick="scrollToCategory('non-coffees')">Non-Coffees</button>
+        <button class="category-nav-btn" onclick="scrollToCategory('specials')">Barista's Specials</button>
+    </div>
+
+    <!-- Add Item Button for Admin -->
+    {% if user.is_staff %}
+    <button class="add-item-btn" onclick="openAddModal()">Add New Item</button>
+    {% endif %}
+
+    <!-- Coffees and Pastries Section -->
+    <h2 class="category-title">Coffees and Pastries</h2>
+    <table class="menu-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Best Seller</th>
+                <th>Available</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items_data %}
+                {% if item.category == "Coffees and Pastries" %}
+                <tr data-id="{{ item.id }}" data-name="{{ item.name }}" data-category="{{ item.category }}" data-price="{{ item.price }}" data-best-seller="{{ item.is_best_seller|yesno:'true,false' }}" data-available="{{ item.available|yesno:'true,false' }}">
+                    <td>{{ item.name }}</td>
+                    <td class="product-price">₱{{ item.price }}</td>
+                    <td>
+                        {% if item.is_best_seller %}
+                            <span class="best-seller">Yes</span>
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.available %}
+                            <span class="available">Yes</span>
+                        {% else %}
+                            <span class="unavailable">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                        <button class="action-btn quick-add-btn" onclick="quickAdd(this)" data-id="{{ item.id }}" data-name="{{ item.name }}" data-price="{{ item.price }}" data-category="{{ item.category }}">Quick Add</button>
+                        {% else %}
+                        <a href="{% url 'signup' %}" class="action-btn quick-add-btn" style="text-decoration: none; display: inline-block;">Sign Up to Order</a>
+                        {% endif %}
+                        {% if user.is_staff %}
+                        <button class="action-btn edit-btn" onclick="editItem(this)">Edit</button>
+                        <button class="action-btn delete-btn" onclick="deleteItem(this)" data-id="{{ item.id }}" data-name="{{ item.name }}">Delete</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% empty %}
+            <tr>
+                <td colspan="5" class="no-items">
+                    <p>No items in this category.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Non-Coffees Section -->
+    <h2 class="category-title">Non-Coffees</h2>
+    <table class="menu-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Best Seller</th>
+                <th>Available</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items_data %}
+                {% if item.category == "Non-Coffees" %}
+                <tr data-id="{{ item.id }}" data-name="{{ item.name }}" data-category="{{ item.category }}" data-price="{{ item.price }}" data-best-seller="{{ item.is_best_seller|yesno:'true,false' }}" data-available="{{ item.available|yesno:'true,false' }}">
+                    <td>{{ item.name }}</td>
+                    <td class="product-price">₱{{ item.price }}</td>
+                    <td>
+                        {% if item.is_best_seller %}
+                            <span class="best-seller">Yes</span>
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.available %}
+                            <span class="available">Yes</span>
+                        {% else %}
+                            <span class="unavailable">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                        <button class="action-btn quick-add-btn" onclick="quickAdd(this)" data-id="{{ item.id }}" data-name="{{ item.name }}" data-price="{{ item.price }}" data-category="{{ item.category }}">Quick Add</button>
+                        {% else %}
+                        <a href="{% url 'signup' %}" class="action-btn quick-add-btn" style="text-decoration: none; display: inline-block;">Sign Up to Order</a>
+                        {% endif %}
+                        {% if user.is_staff %}
+                        <button class="action-btn edit-btn" onclick="editItem(this)">Edit</button>
+                        <button class="action-btn delete-btn" onclick="deleteItem(this)" data-id="{{ item.id }}" data-name="{{ item.name }}">Delete</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% empty %}
+            <tr>
+                <td colspan="5" class="no-items">
+                    <p>No items in this category.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Barista's Specials Section -->
+    <h2 class="category-title">Barista's Specials</h2>
+    <table class="menu-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Best Seller</th>
+                <th>Available</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items_data %}
+                {% if item.category == "Barista's Specials" %}
+                <tr data-id="{{ item.id }}" data-name="{{ item.name }}" data-category="{{ item.category }}" data-price="{{ item.price }}" data-best-seller="{{ item.is_best_seller|yesno:'true,false' }}" data-available="{{ item.available|yesno:'true,false' }}">
+                    <td>{{ item.name }}</td>
+                    <td class="product-price">₱{{ item.price }}</td>
+                    <td>
+                        {% if item.is_best_seller %}
+                            <span class="best-seller">Yes</span>
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.available %}
+                            <span class="available">Yes</span>
+                        {% else %}
+                            <span class="unavailable">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="action-btn quick-add-btn" onclick="quickAdd(this)" data-id="{{ item.id }}" data-name="{{ item.name }}" data-price="{{ item.price }}" data-category="{{ item.category }}">Quick Add</button>
+                        {% if user.is_staff %}
+                        <button class="action-btn edit-btn" onclick="editItem(this)">Edit</button>
+                        <button class="action-btn delete-btn" onclick="deleteItem(this)" data-id="{{ item.id }}" data-name="{{ item.name }}">Delete</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% empty %}
+            <tr>
+                <td colspan="5" class="no-items">
+                    <p>No items in this category.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+
+<!-- Add/Edit Modal -->
+<div id="itemModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">Add New Item</h2>
+        <form id="itemForm">
+            <div class="form-group">
+                <label for="itemName">Name:</label>
+                <input type="text" id="itemName" required>
+            </div>
+            <div class="form-group">
+                <label for="itemCategory">Category:</label>
+                <select id="itemCategory" required>
+                    <option value="Coffees and Pastries">Coffees and Pastries</option>
+                    <option value="Non-Coffees">Non-Coffees</option>
+                    <option value="Barista's Specials">Barista's Specials</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="itemPrice">Price:</label>
+                <input type="number" id="itemPrice" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="itemBestSeller"> Best Seller
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="itemAvailable" checked> Available
+                </label>
+            </div>
+            <button type="submit" class="action-btn">Save Item</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let editingItemId = null;
+
+    function saveToCart(item) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || { menuItems: [], reservation: null };
+        const existingItem = cart.menuItems.find(cartItem =>
+            cartItem.id === item.id &&
+            JSON.stringify(cartItem.customization) === JSON.stringify(item.customization)
+        );
+        if (existingItem) {
+            existingItem.quantity += item.quantity;
+        } else {
+            cart.menuItems.push(item);
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        console.log("Item added to cart:", item);
+        return true;
+    }
+
+    function quickAdd(button) {
+        const id = parseInt(button.dataset.id);
+        const name = button.dataset.name;
+        const price = parseFloat(button.dataset.price);
+        const category = button.dataset.category;
+
+        const cartItem = {
+            id: id,
+            name: name,
+            price: price,
+            quantity: 1,
+            customization: {},
+            category: category
+        };
+
+        saveToCart(cartItem);
+        alert(`${name} added to cart for ₱${price}!`);
+    }
+
+    // Admin CRUD functions
+    function openAddModal() {
+        editingItemId = null;
+        document.getElementById('modalTitle').textContent = 'Add New Item';
+        document.getElementById('itemForm').reset();
+        document.getElementById('itemModal').style.display = 'block';
+    }
+
+    function editItem(button) {
+        editingItemId = parseInt(button.dataset.id);
+        document.getElementById('modalTitle').textContent = 'Edit Item';
+        document.getElementById('itemName').value = button.dataset.name;
+        document.getElementById('itemCategory').value = button.dataset.category;
+        document.getElementById('itemPrice').value = button.dataset.price;
+        document.getElementById('itemBestSeller').checked = button.dataset.bestSeller === 'true';
+        document.getElementById('itemAvailable').checked = button.dataset.available === 'true';
+        document.getElementById('itemModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('itemModal').style.display = 'none';
+        editingItemId = null;
+    }
+
+    function deleteItem(id, name) {
+        if (confirm(`Are you sure you want to delete "${name}"?`)) {
+            fetch(`/menu/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error deleting item');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting item');
+            });
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.getElementById('itemForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = {
+            name: document.getElementById('itemName').value,
+            category: document.getElementById('itemCategory').value,
+            price: parseFloat(document.getElementById('itemPrice').value),
+            available: document.getElementById('itemAvailable').checked,
+            is_best_seller: document.getElementById('itemBestSeller').checked,
+        };
+
+        const method = editingItemId ? 'PUT' : 'POST';
+        const url = editingItemId ? `/menu/${editingItemId}/` : '/menu/';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error saving item');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error saving item');
+        });
+    });
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('itemModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Category navigation function
+    function scrollToCategory(category) {
+        const categoryMap = {
+            'coffees': 'Coffees and Pastries',
+            'non-coffees': 'Non-Coffees',
+            'specials': 'Barista\'s Specials'
+        };
+        const categoryTitle = categoryMap[category];
+        const elements = document.querySelectorAll('h2.category-title');
+        for (let element of elements) {
+            if (element.textContent.trim() === categoryTitle) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                break;
+            }
+        }
+    }
+
+    // Go to Top Button functionality
+    window.onscroll = function() {scrollFunction()};
+
+    function scrollFunction() {
+        const goToTopBtn = document.getElementById("goToTopBtn");
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            goToTopBtn.style.display = "block";
+        } else {
+            goToTopBtn.style.display = "none";
+        }
+    }
+
+    function topFunction() {
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    }
+</script>
+
+<!-- Go to Top Button -->
+<button onclick="topFunction()" id="goToTopBtn" title="Go to top">↑</button>
+
+</body>
+
+</html>
+
+{% endblock %}
